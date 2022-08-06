@@ -1,0 +1,13 @@
+<!--
+	imgpath: path a la imagen GLOBAL
+	res: resolución de la imagen
+	alt: alternative text (SEO, así que a poner cosas inteligentes)
+
+	RECORDAR PONER TODOS LOS ARGUMENTOS ENTRE COMILLAS
+-->
+{{ $imgpath := .Get "imgpath"}}
+{{ $res := .Get "res" }}
+{{ $image := resources.Get $imgpath}}
+{{ with $image.Resize $res }}
+	<img src="{{ .RelPermalink }}">
+{{ end }}

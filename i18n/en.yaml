@@ -1,11 +1,11 @@
 - id: get-started
-  translation: "Get Started"
+  translation: "Empieza ya"
 
 - id: on-this-page
-  translation: "On this page"
+  translation: "En esta página:"
 
 - id: search-text
-  translation: "Search docs..."
+  translation: "Busca Apuntes..."
 
 - id: 404-title
   translation: "Page not found :("
@@ -14,4 +14,4 @@
   translation: "The page you are looking for doesn't exist or has been moved."
 
 - id: browse
-  translation: "Browse"
+  translation: "Buscar"
