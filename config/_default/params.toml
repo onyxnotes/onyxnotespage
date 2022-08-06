@@ -11,10 +11,10 @@ description = "Doks is a Hugo theme for building secure, fast, and SEO-ready doc
 # docsVersion = "0.3"
 
 ## Open Graph
-images = ["doks.png"]
+images = ["onyx.png"]
 ogLocale = "en_US"
-domainTLD = "doks.netlify.app"
-titleHome = "Doks Theme"
+domainTLD = "onyxnotes.netlify.app"
+titleHome = "Onyx notes"
 
 ## Twitter Cards
 twitterSite = ""
