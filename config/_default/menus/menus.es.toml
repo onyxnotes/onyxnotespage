@@ -1,19 +1,19 @@
 [[docs]]
-  name = "Prologue"
+  name = "Prólogo"
   weight = 10
-  identifier = "prologue"
-  url = "/docs/prologue/"
+  identifier = "prologo"
+  url = "/docs/prologo/"
 
 [[docs]]
-  name = "Help"
+  name = "Ayuda"
   weight = 60
-  identifier = "help"
-  url = "/docs/help/"
+  identifier = "ayuda"
+  url = "/docs/ayuda/"
 
 [[docs]]
   name = "Test"
   weight = 80
-  identifier = "help"
+  identifier = "ayuda"
   url = "/docs/test/"
 
 # [[docs]]
@@ -26,7 +26,7 @@
   name = "Lorem"
   weight = 10
   identifier = "lorem"
-  url = "/guide/lorem/"
+  url = "/guia/lorem/"
 
 [[tutorial]]
   name = "Lorem"
@@ -36,7 +36,7 @@
 
 [[main]]
   name = "Docs"
-  url = "/docs/prologue/introduction/"
+  url = "/docs/prologo/introduccion/"
 # url = "/docs/1.0/prologue/introduction/"
   weight = 10
 
@@ -51,32 +51,32 @@
   weight = 20
 
 [[main]]
-  name = "Notes"
-  url = "/notes/"
+  name = "Apuntes"
+  url = "/apuntes/"
   weight = 35
 
 ##################################################################
 # Ejemplo de como hacer dropdown menu
 #-----------------------------------------------------------------
 [[main]]
-  name = "Get Started"
+  name = "Iniciarse"
   weight = 30
-  identifier = "get-started"
-  url = "/docs/prologue/introduction/"
+  identifier = "iniciarse"
+  url = "/docs/prologo/introduccion/"
 
 [[main]]
-  name = "Quick Start"
+  name = "Inicio rápido"
   weight = 40
-  identifier = "quick-start"
-  url = "/docs/prologue/quick-start/"
-  parent = "get-started"
+  identifier = "inicio-rapido"
+  url = "/docs/prologue/inicio-rapido/"
+  parent = "inicio-rapido"
 
 [[main]]
   name = "Tutorial"
   weight = 50
   identifier = "tutorial"
   url = "https://getdoks.org/tutorial/introduction/"
-  parent = "get-started"
+  parent = "iniciarse"
 ##################################################################
 
 [[social]]
@@ -93,6 +93,6 @@
 #   weight = 20
 
  [[footer]]
-   name = "Privacy"
-   url = "/privacy-policy/"
+   name = "Privacidad"
+   url = "/politica-de-privacidad/"
    weight = 10

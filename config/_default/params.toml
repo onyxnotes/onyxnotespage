@@ -3,16 +3,16 @@
 ## Homepage
 title = "Onyx Notes"
 titleSeparator = "-"
-titleAddition = "Apuntes de locos"
+titleAddition = "Apuntes de calidad"
 # description = "Doks is a Hugo theme for building secure, fast, and SEO-ready documentation websites, which you can easily update and customize."
-description = "Doks is a Hugo theme for building secure, fast, and SEO-ready documentation websites, which you can easily update and customize."
+description = "En OnyxNotes encontrarás los mejores apuntes hechos a medida para tu carrera."
 
 ## Documentation
 # docsVersion = "0.3"
 
 ## Open Graph
 images = ["onyx.png"]
-ogLocale = "en_US"
+ogLocale = "es_ES"
 domainTLD = "onyxnotes.netlify.app"
 titleHome = "Onyx notes"
 
@@ -23,12 +23,12 @@ twitterCreator = ""
 ## JSON-LD
 # schemaType = "Person"
 schemaType = "Organization"
-schemaName = "Onyx notes"
-schemaAuthor = "Onyx notes team"
+schemaName = "Onyx Notes"
+schemaAuthor = "Onyx Notes team"
 schemaAuthorTwitter = ""
 schemaAuthorLinkedIn = "https://www.linkedin.com/in/alvaro-viejo-alonso-871428243/"
 schemaAuthorGitHub = "https://github.com/onyxnotes"
-schemaLocale = "en-US"
+schemaLocale = "es-ES"
 schemaLogo = "logo-doks.png"
 schemaLogoWidth = 512
 schemaLogoHeight = 512
@@ -67,11 +67,11 @@ defaultImage = "onyx-prototypefull-white.png" # put in `./assets/images/`
 fillImage = "1270x740 Center" # normalize image size
 
 # Footer
-footer = "Hecho con ♥️ por <a class=\"text-muted\" href=\"https://www.linkedin.com/in/alvaro-viejo-alonso-871428243/\">Alvaro Viejo</a> y <a class=\"text-muted\" href=\"https://www.linkedin.com/in/rodrigo-oliver-coimbra-386bab206/\">Rodrigo Oliver</a>"
+footer = "Hecho con ♥️ por <a class=\"text-muted\" href=\"https://www.linkedin.com/in/alvaro-viejo-alonso-871428243/\">Álvaro Viejo</a> y <a class=\"text-muted\" href=\"https://www.linkedin.com/in/rodrigo-oliver-coimbra-386bab206/\">Rodrigo Oliver</a>"
 # footer = "Powered by <a class=\"text-muted\" href=\"https://www.netlify.com/\">Netlify</a>, <a class=\"text-muted\" href=\"https://gohugo.io/\">Hugo</a>, and <a class=\"text-muted\" href=\"https://getdoks.org/\">Doks</a>"
 
 # Feed
-copyRight = "Copyright (c) 2022 Alvaro Viejo"
+copyRight = "Copyright (c) 2022 Alvaro Viejo, Rodrigo Oliver"
 
 # Alert
 alert = false
@@ -90,21 +90,21 @@ editPage = true
 lastMod = false
 
 [sections]
-  sectionNav = ["docs", "guides"]
+  sectionNav = ["docs", "guides", "notes"]
 
 [options]
   lazySizes = true
   clipBoard = true
   instantPage = true
   flexSearch = true
-  searchSectionsShow = []
+  searchSectionsShow = ["HomePage"]
   searchSectionsIndex = []
   darkMode = true
   bootStrapJs = true
   breadCrumb = false
   highLight = true
   kaTex = true
-  multilingualMode = false
+  multilingualMode = true
   docsVersioning = false
   fullWidth = true
   navbarSticky = true

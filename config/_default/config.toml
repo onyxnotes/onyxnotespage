@@ -9,8 +9,9 @@ paginate = 7
 rssLimit = 10
 
 # Multilingual
-defaultContentLanguage = "en"
-disableLanguages = ["de", "nl"]
+#### ATENCIÓN: Próximamente la lengua predeterminada será el castellano
+defaultContentLanguage = "es"
+#disableLanguages = ["de", "nl"]
 # defaultContentLanguageInSubdir = true
 
 # add redirects/headers
