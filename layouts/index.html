@@ -7,10 +7,19 @@
     <div class="col-lg-9 col-xl-8 text-center">
       <p class="lead">{{ .Params.lead | safeHTML }}</p>
       <!-- Cambiar botón por colabora con nosotros o apóyanos en Patreon -->
-      <a class="btn btn-primary btn-lg px-4 mb-2" href="/docs/{{ if .Site.Params.options.docsVersioning }}{{ .Site.Params.docsVersion }}/{{ end }}prologue/introduction/" role="button">{{ i18n "get-started" }}</a>
+      {{ if eq $.Site.Language.LanguageName "English" }}
+      <a class="btn btn-primary btn-lg px-4 mb-2" href="/docs/{{ if .Site.Params.options.docsVersioning }}{{ .Site.Params.docsVersion }}/{{ end }}contribute/introduction/" role="button">{{ i18n "get-started" }}</a>
+      {{end}}
       <!--
       <p class="meta">Open-source MIT Licensed. <a href="https://github.com/h-enk/doks">GitHub v{{ $data := getJSON "/package.json" }}{{ $data.version }}</a></p>
       -->
+      {{ if eq $.Site.Language.LanguageName "Spanish" }}
+      <a class="btn btn-primary btn-lg px-4 mb-2" href="/docs/{{ if .Site.Params.options.docsVersioning }}{{ .Site.Params.docsVersion }}/{{ end }}contribuir/introduccion/" role="button">{{ i18n "get-started" }}</a>
+      {{end}}
+
+      {{ if eq $.Site.Language.LanguageName "Portuguese" }}
+      <a class="btn btn-primary btn-lg px-4 mb-2" href="/docs/{{ if .Site.Params.options.docsVersioning }}{{ .Site.Params.docsVersion }}/{{ end }}contribuir/introducao/" role="button">{{ i18n "get-started" }}</a>
+      {{end}}
 
     <!--
     <div style="margin:auto" class="col-lg-9 col-xl-8 text-center">
@@ -155,8 +164,290 @@
       </div>
       -->
     </div>
+    <!--
+    <section class="section section-sm mt-3 pt-3">
+      <div class=container>
+        <div class="row justify-content-center">
+          <div class="col-md-12 col-lg-10 col-xl-8">
+            <h2 class="h3 mt-3 text-center">Lo último del blog de Onyx Notes</h2>
+            {{ range ( first 3 ( where .Site.Pages "Type" "blog" ).ByDate ) }}
+            <div class=card-list>
+                <div class=card-body>
+                  <h3><a class="stretched-link text-body" href="{{ .Permalink }}">{{ .Title }}</a></h3>
+                  <p><a href="{{ .Permalink }}">{{ .Content }}</a></p>
+                </div>
+            </div>
+            {{ end }}
+          </div>
+        </div>
+      </div>
+    </section>
+    -->
+  {{ end }}
+
+  {{ if eq $.Site.Language.LanguageName "English" }}
+  <section class="section section-sm">
+    <div class="container">
+      <div class="row justify-content-center text-center">
+        <div class="col-lg-5">
+          <h2 class="h4">Quality notes &#x1f31f;</h2>
+          <p>All of our material in OnyxNotes is carefully revised and approved by students in your degree or a similar one.</p>
+        </div>
+        <div class="col-lg-5">
+          <h2 class="h4">Straight to the point &#x1F3AF;</h2>
+          <p>Our notes contain exactly what you need to prepare your exams and have the grades you deserve.</p>
+        </div>
+        <div class="col-lg-5">
+          <h2 class="h4">Have questions? &#x1f4ac;</h2>
+          <p>Join our official Discord channel where you ask your questions and be helped by other fellow students.</p>
+        </div>
+      </div>
+      <section style="align-items: center" class="section section-featured mt-3 bg-light py-5 text-center">
+        <div style="align-items: center" class=container>
+          <h2 class="h3 mt-0 text-center">The most popular notes &#x1f525;</h2>
+          <div class="row justify-content-center mt-3 g-3">
+            <div class="col-sm-8 col-md-6 col-xl-4">
+              <div class="card h-50">
+                <div class=card-body>
+                  <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/lotus-docs/>Python Programming</a></h3>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-8 col-md-6 col-xl-4">
+              <div class="card h-50">
+                <div class=card-body>
+                  <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/invidious/>Calculus I</a></h3>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-8 col-md-6 col-xl-4">
+              <div class="card h-50">
+                <div class=card-body>
+                  <h3 style="align-items: center" class="h5 card-title my-2">
+                    <a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/localstack/>Calculus II</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-8 col-md-6 col-xl-4">
+                <div class="card h-50">
+                  <div class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/litestream/>Introduction to Data Science</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Signals and Systems</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Discrete mathematics</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Automata Theory and Compilers</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Linear Algebra</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>R Programming</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Databases</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Data Protection and Cybersecurity</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Numerical methods</a></h3>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+      <!--
+      <div class="row justify-content-center text-center">
+        <div class="col-lg-5">
+          <h2 class="h4">Full text search</h2>
+          <p>Search your Doks site with FlexSearch. Easily customize index settings and search options to your liking.</p>
+        </div>
+        <div class="col-lg-5">
+          <h2 class="h4">Page layouts</h2>
+          <p>Build pages with a landing page, blog, or documentation layout. Add custom sections and components to suit your needs.</p>
+        </div>
+        <div class="col-lg-5">
+          <h2 class="h4">Dark mode</h2>
+          <p>Switch to a low-light UI with the click of a button. Change colors with variables to match your branding.</p>
+        </div>
+      </div>
+      -->
+    </div>
   </section>
   {{ end }}
+
+
+  {{ if eq $.Site.Language.LanguageName "Portuguese" }}
+  <section class="section section-sm">
+    <div class="container">
+      <div class="row justify-content-center text-center">
+        <div class="col-lg-5">
+          <h2 class="h4">Notas de qualidade &#x1f31f;</h2>
+          <p>Todo o nosso material no OnyxNotes é cuidadosamente revisto e aprovado por estudantes do teu curso o dum similar.</p>
+        </div>
+        <div class="col-lg-5">
+          <h2 class="h4">Diretos ao que interessa &#x1F3AF;</h2>
+          <p>As nossas notas têm exatamente aquilo do que precisas para preparar os teus exames e obter as notas que mereces.</p>
+        </div>
+        <div class="col-lg-5">
+          <h2 class="h4">Tens dúvidas? &#x1f4ac;</h2>
+          <p>Adere ao nosso canal oficial de Discord onde podes perguntar as tuas dúvidas e ser ajudado por estudantes como tu.</p>
+        </div>
+      </div>
+      <section style="align-items: center" class="section section-featured mt-3 bg-light py-5 text-center">
+        <div style="align-items: center" class=container>
+          <h2 class="h3 mt-0 text-center">As notas mais populares &#x1f525;</h2>
+          <div class="row justify-content-center mt-3 g-3">
+            <div class="col-sm-8 col-md-6 col-xl-4">
+              <div class="card h-50">
+                <div class=card-body>
+                  <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/lotus-docs/>Programação em Python</a></h3>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-8 col-md-6 col-xl-4">
+              <div class="card h-50">
+                <div class=card-body>
+                  <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/invidious/>Cálculo I</a></h3>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-8 col-md-6 col-xl-4">
+              <div class="card h-50">
+                <div class=card-body>
+                  <h3 style="align-items: center" class="h5 card-title my-2">
+                    <a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/localstack/>Cálculo II</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-8 col-md-6 col-xl-4">
+                <div class="card h-50">
+                  <div class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/litestream/>Introdução à Ciência de Dados</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Sinais e Sistemas</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Matemática discreta</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Teoria de Autómatas e Compiladores</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Álgebra linear</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Programação em R</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Bases de dados</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Proteção de Dados e Cibersegurança</a></h3>
+                  </div>
+                </div>
+              </div>
+              <div style="align-items: center" class="col-sm-8 col-md-6 col-xl-4">
+                <div style="align-items: center" class="card h-50">
+                  <div style="align-items: center" class=card-body>
+                    <h3 style="align-items: center" class="h5 card-title my-2"><a class="card-link stretched-link text-dark text-decoration-none" href=/showcase/prometheus-operator/>Métodos numéricos</a></h3>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+      <!--
+      <div class="row justify-content-center text-center">
+        <div class="col-lg-5">
+          <h2 class="h4">Full text search</h2>
+          <p>Search your Doks site with FlexSearch. Easily customize index settings and search options to your liking.</p>
+        </div>
+        <div class="col-lg-5">
+          <h2 class="h4">Page layouts</h2>
+          <p>Build pages with a landing page, blog, or documentation layout. Add custom sections and components to suit your needs.</p>
+        </div>
+        <div class="col-lg-5">
+          <h2 class="h4">Dark mode</h2>
+          <p>Switch to a low-light UI with the click of a button. Change colors with variables to match your branding.</p>
+        </div>
+      </div>
+      -->
+    </div>
+  </section>
+  {{ end }}
+
 {{ end }}
 
 {{ define "sidebar-footer" }}

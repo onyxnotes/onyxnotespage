@@ -1,8 +1,8 @@
-[[docs]]
-  name = "Prólogo"
-  weight = 10
-  identifier = "prologo"
-  url = "/docs/prologo/"
+#[[docs]]
+#  name = "Prólogo"
+#  weight = 10
+#  identifier = "prologo"
+#  url = "/docs/prologo/"
 
 [[docs]]
   name = "Ayuda"
@@ -22,28 +22,33 @@
 #   identifier = "lorem"
 #   url = "/docs/lorem/"
 
-[[guide]]
-  name = "Lorem"
-  weight = 10
-  identifier = "lorem"
-  url = "/guia/lorem/"
+#[[guide]]
+#  name = "Lorem"
+#  weight = 10
+#  identifier = "lorem"
+#  url = "/guia/lorem/"
 
-[[tutorial]]
-  name = "Lorem"
-  weight = 10
-  identifier = "lorem"
-  url = "/tutorial/lorem/"
+#[[tutorial]]
+#  name = "Lorem"
+#  weight = 10
+#  identifier = "lorem"
+#  url = "/tutorial/lorem/"
 
-[[main]]
-  name = "Docs"
-  url = "/docs/prologo/introduccion/"
+#[[main]]
+#  name = "Docs"
+#  url = "/docs/prologo/introduccion/"
 # url = "/docs/1.0/prologue/introduction/"
-  weight = 10
+#  weight = 10
 
 # [[main]]
 #   name = "Tutorial"
 #   url = "/tutorial/lorem/ipsum/"
 #   weight = 15
+
+[[main]]
+  name = "FAQ"
+  url = "/docs/preguntas-mas-frecuentes/"
+  weight = 10
 
 [[main]]
   name = "Blog"
@@ -52,31 +57,31 @@
 
 [[main]]
   name = "Apuntes"
-  url = "/apuntes/"
+  url = "/notes/"
   weight = 35
 
 ##################################################################
 # Ejemplo de como hacer dropdown menu
 #-----------------------------------------------------------------
 [[main]]
-  name = "Iniciarse"
+  name = "Contribuye"
   weight = 30
-  identifier = "iniciarse"
-  url = "/docs/prologo/introduccion/"
+  identifier = "contribuye"
+  url = "/docs/contribuir/introduccion/"
 
-[[main]]
-  name = "Inicio rápido"
-  weight = 40
-  identifier = "inicio-rapido"
-  url = "/docs/prologue/inicio-rapido/"
-  parent = "inicio-rapido"
+#[[main]]
+#  name = "Inicio rápido"
+#  weight = 40
+#  identifier = "inicio-rapido"
+#  url = "/docs/prologue/inicio-rapido/"
+#  parent = "inicio-rapido"
 
-[[main]]
-  name = "Tutorial"
-  weight = 50
-  identifier = "tutorial"
-  url = "https://getdoks.org/tutorial/introduction/"
-  parent = "iniciarse"
+#[[main]]
+#  name = "Tutorial"
+#  weight = 50
+#  identifier = "tutorial"
+#  url = "https://getdoks.org/tutorial/introduction/"
+#  parent = "iniciarse"
 ##################################################################
 
 [[social]]
@@ -94,5 +99,5 @@
 
  [[footer]]
    name = "Privacidad"
-   url = "/politica-de-privacidad/"
+   url = "docs/politica-de-privacidad/"
    weight = 10

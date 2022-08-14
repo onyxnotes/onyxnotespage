@@ -3,24 +3,24 @@
   contentDir = "content/en"
   weight = 5
   [en.params]
-    languageISO = "EN"
-    languageTag = "en-US"
+    languageISO = "en"
+    languageTag = "en-us"
 
 [es]
   languageName = "Spanish"
   contentDir = "content/es"
   weight = 10
   [es.params]
-    languageISO = "ES"
-    languageTag = "es-ES"
+    languageISO = "es"
+    languageTag = "es-es"
 
 [pt]
   languageName = "Portuguese"
   contentDir = "content/pt"
   weight = 15
   [pt.params]
-    languageISO = "PT"
-    languageTag = "pt-PT"
+    languageISO = "pt"
+    languageTag = "pt-pt"
 
 #[de]
 #  languageName = "German"

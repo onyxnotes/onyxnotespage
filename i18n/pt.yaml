@@ -1,5 +1,5 @@
 - id: get-started
-  translation: "Começa já"
+  translation: "Junta-te à equipa"
 
 - id: on-this-page
   translation: "Nesta página:"
@@ -8,7 +8,7 @@
   translation: "Procura notas..."
 
 - id: 404-title
-  translation: "Página não :("
+  translation: "Página não encontrada :("
 
 - id: 404-text
   translation: "A página de que estás à procura não existe ou mudou de sítio."

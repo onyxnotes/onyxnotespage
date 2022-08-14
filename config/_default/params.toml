@@ -12,9 +12,9 @@ description = "En OnyxNotes encontrarás los mejores apuntes hechos a medida par
 
 ## Open Graph
 images = ["onyx.png"]
-ogLocale = "es_ES"
+ogLocale = "es_es"
 domainTLD = "onyxnotes.netlify.app"
-titleHome = "Onyx notes"
+titleHome = "Onyx Notes"
 
 ## Twitter Cards
 twitterSite = ""
@@ -28,7 +28,7 @@ schemaAuthor = "Onyx Notes team"
 schemaAuthorTwitter = ""
 schemaAuthorLinkedIn = "https://www.linkedin.com/in/alvaro-viejo-alonso-871428243/"
 schemaAuthorGitHub = "https://github.com/onyxnotes"
-schemaLocale = "es-ES"
+schemaLocale = "es-es"
 schemaLogo = "logo-doks.png"
 schemaLogoWidth = 512
 schemaLogoHeight = 512
@@ -67,7 +67,7 @@ defaultImage = "onyx-prototypefull-white.png" # put in `./assets/images/`
 fillImage = "1270x740 Center" # normalize image size
 
 # Footer
-footer = "Hecho con ♥️ por <a class=\"text-muted\" href=\"https://www.linkedin.com/in/alvaro-viejo-alonso-871428243/\">Álvaro Viejo</a> y <a class=\"text-muted\" href=\"https://www.linkedin.com/in/rodrigo-oliver-coimbra-386bab206/\">Rodrigo Oliver</a>"
+footer = "Made with ♥️ by <a class=\"text-muted\" href=\"https://www.linkedin.com/in/alvaro-viejo-alonso-871428243/\">Álvaro Viejo</a> and <a class=\"text-muted\" href=\"https://www.linkedin.com/in/rodrigo-oliver-coimbra-386bab206/\">Rodrigo Oliver</a>"
 # footer = "Powered by <a class=\"text-muted\" href=\"https://www.netlify.com/\">Netlify</a>, <a class=\"text-muted\" href=\"https://gohugo.io/\">Hugo</a>, and <a class=\"text-muted\" href=\"https://getdoks.org/\">Doks</a>"
 
 # Feed
