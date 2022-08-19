@@ -24,16 +24,18 @@ Onyx Notes <em>no</em> es una enciclopedia, un libro de texto, un solucionario, 
 No, no debes estudiar utilizando solamente Onyx Notes. El material más importante y adecuado para ti es el dado por tu profesor/a para el curso. Onyx Notes debe ser usado apenas como un complemento y una herramienta adicional para facilitar el aprendizaje, nunca como la única o principal opción.
 
 # 4. ¿Puedo solicitar unos apuntes concretos a Onyx Notes?
-Sí, puedes solicitar unos apuntes concretos a Onyx Notes a través de nuestro correo electrónico con asunto <wm>Solicitud</em> o a la sección <span style="color:#5865F2">#solicitudes</span> de nuestro canal oficial de Discord. Si la petición tiene que realizarse en un período determinado de tiempo será necesario hacer una pequeña aportación al proyecto, tras la cual tendrás acceso total al material. [Más información](/docs/politica-de-pedidos/)
+Sí, puedes solicitar unos apuntes concretos a Onyx Notes a través de nuestro correo electrónico con asunto <em>Solicitud</em> o a la sección <span style="color:#5865F2">#solicitudes</span> de nuestro canal oficial de Discord. Si la petición tiene que realizarse en un período determinado de tiempo será necesario hacer una pequeña aportación al proyecto, tras la cual tendrás acceso total al material. [Más información](/docs/politica-de-pedidos/)
 
 # 5. ¿Cómo puedo contribuir a Onyx Notes?
 
 ## 5.1 Compartiendo apuntes
-Contáctanos a escribiéndo a nuestra dirección de correo electrónico con asunto<em>Colaboración</em> o dejando un mensaje en nuestro canal oficial de Discord en la sección <span style="color:#5865F2">#colaboraciones</span>. Debes identificarte con tu nombre y un apellido, así como demostrar que eres alumno de la universidad.
+Contáctanos a escribiéndo a nuestra dirección de correo electrónico con asunto <em>Colaboración</em> o dejando un mensaje en nuestro canal oficial de Discord en la sección <span style="color:#5865F2">#colaboraciones</span>. Debes identificarte con tu nombre y un apellido, así como demostrar que eres alumno de la universidad.
 
 Una vez se haya recibido esa información te escribiremos y podrás enviarnos tus apuntes con el permiso de edición y publicación. Tras revisar el material que nos has enviado procederemos a publicarlo figurando tu nombre o iniciales (según tus preferencias) identificándote como autor original del artículo.
 
 Tendrás acceso <strong>ilimitado</strong> a todo el contenido de Onyx Notes.
+
+Esto está condicionado a la cantidad de tres contribuciones mínimas por cuatrimestre (Septiembre-Enero; Febrero-Julio).
 
 ## 5.2 Apoyándonos en Patreon
 Si no puedes ayudarnos con apuntes te agradecemos si puedes apoyar nuestro trabajo en Patreon por un importe mínimo. Puedes elegir patrocinarnos de forma periódica o por apuntes en demanda, es decir, solamente por algún apunte en particular que te interese. [Más información](/docs/politica-de-pedidos/)

@@ -16,7 +16,7 @@ toc: true
 
 # 1. ¿Cómo puedo solicitar un pedido de apuntes?
 
-Puedes solicitar el material de estudio que necesites a Onyx Notes a través de nuestro correo electrónico con asunto <wm>Solicitud</em> o a la sección <span style="color:#5865F2">#solicitudes</span> de nuestro canal oficial de Discord. Si la petición tiene que realizarse en un período determinado de tiempo será necesario hacer una pequeña aportación al proyecto, tras la cual tendrás acceso total al material. En este último caso el importe de dicha aportación varía en función de la extensión y la rapidez con la que se tiene que generar el material (mínimo 3 días hábiles), así como si se solicita en el periodo de vacaciones o exámenes finales (1 de diciembre a 31 de enero; 1 de mayo a 10 de julio).
+Puedes solicitar el material de estudio que necesites a Onyx Notes a través de nuestro correo electrónico con asunto <em>Solicitud</em> o a la sección <span style="color:#5865F2">#solicitudes</span> de nuestro canal oficial de Discord. Si la petición tiene que realizarse en un período determinado de tiempo será necesario hacer una pequeña aportación al proyecto, tras la cual tendrás acceso total al material. En este último caso el importe de dicha aportación varía en función de la extensión y la rapidez con la que se tiene que generar el material (mínimo 3 días hábiles), así como si se solicita en el periodo de vacaciones o exámenes finales (1 de diciembre a 31 de enero; 1 de mayo a 10 de julio).
 
 La modalidad y fecha de pago se pactará entre ambas partes tras la comunicación por parte del equipo de Onyx Notes de la aceptación del pedido en el plazo solicitado.
 

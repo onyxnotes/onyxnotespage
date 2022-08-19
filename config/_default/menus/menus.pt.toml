@@ -50,10 +50,10 @@
   url = "/docs/perguntas-mais-frequentes/"
   weight = 10
 
-[[main]]
-  name = "Blogue"
-  url = "/blog/"
-  weight = 20
+#[[main]]
+#  name = "Blogue"
+#  url = "/blog/"
+#  weight = 20
 
 [[main]]
   name = "Notas"
@@ -64,7 +64,7 @@
 # Ejemplo de como hacer dropdown menu
 #-----------------------------------------------------------------
 [[main]]
-  name = "Contribui"
+  name = "Colabora"
   weight = 30
   identifier = "contribui"
   url = "/docs/contribuir/introducao/"

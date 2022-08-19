@@ -14,9 +14,9 @@ weight: 999
 toc: true
 ---
 
-¿Eres estudiante? ¿Te gusta crear tus propios apuntes? ¿Crees que pueden ser útiles para los demás? Entonces tu colaboración en Onyx Notes es bienvenida.
+¿Eres estudiante? ¿Te gusta crear tus propios apuntes? ¿Crees que pueden ser útiles para los demás? ¡Entonces tu colaboración en Onyx Notes es bienvenida!
 
-Para contribuir al proyecto debes leer primero nuestro [FAQ](/docs/preguntas-mas-frecuentes/), la [política de pedidos](/docs/politica-de-pedidos/) y nuestro [aviso legal](/docs/aviso-legal/).
+Para contribuir al proyecto debes primero leer brevemente nuestro [FAQ](/docs/preguntas-mas-frecuentes/), la [política de pedidos](/docs/politica-de-pedidos/) y nuestro [aviso legal](/docs/aviso-legal/).
 
 ¡Trabajemos juntos!
 
