@@ -8,6 +8,8 @@ enableRobotsTXT = true
 paginate = 7
 rssLimit = 10
 
+#copyright= 'Copyright (&copy;) {{ now.Format "2006" }} Onyx Notes Team, onyxnotes.com Todos los derechos reservados'
+
 # Multilingual
 #### ATENCIÓN: Próximamente la lengua predeterminada será el castellano
 defaultContentLanguage = "es"
