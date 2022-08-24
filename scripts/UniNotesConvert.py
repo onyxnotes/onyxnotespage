@@ -57,8 +57,6 @@ It's purpose is to provide colorful and more informative prints in the terminal
 
 To install it, stop the script with CTRL-C and type:
 \t>>> python3 -m pip install termcolor
-Or, get all the optional dependencies at once running
-\t>>> python3 -m pip install -r requirements.txt
 """)
     COLORFUL = False
 
@@ -106,6 +104,31 @@ def getArguments() -> Tuple[str, str]:
     args = parser.parse_args()
     filepath = args.path
 
+    """
+    Esta parte del codigo es muy sucia, deberia de ser
+    reimplementada. La funcionalidad de la que se
+    encarga es comprobar que en efecto se ha introducido
+    un argumento al script desde la terminal.
+    Si nada se ha introducido, solo imprime la ayuda y
+    sale del programa.
+
+    Esto probablemente se pueda implementar de una forma
+    mas limpia haciendo una subclase del parser que 
+    modifique el metodo error(), como explica este
+    este post de stack overflow:
+        https://stackoverflow.com/questions/4042452/display-help-message-with-python-argparse-when-script-is-called-without-any-argu
+
+    Aun asi por ahora funciona sin problemas, asi que
+    lo dejo para la posteridad.
+    """
+    # Check a filepath has been introduced, if not,
+    # exit and display help
+    if filepath is None:
+        # show parser help
+        parser.print_help()
+        # exit the program
+        sys.exit()
+
     # Get the folder in which Uni Notes is stored
     folders = filepath.split("/")
     indx = 0
@@ -135,6 +158,36 @@ def getArguments() -> Tuple[str, str]:
 
 
 
+def getOnyxRootDir() -> str:
+    """
+    Devuelve la raiz de la carpeta de onyx
+    del sistema
+    """
+    folders = os.getcwd().split("/")
+    indx = 0
+    backupname = ""
+    for folder in folders:
+        if "onyx" in folder.lower():
+            break
+        indx += 1
+
+    # Si no se ha encontrado ninguna carpeta
+    # que contenga el nombre de onyx, 
+    # introducir manualmente.
+    else:
+        backupname = input("No he sido capaz de encontrar la carpeta de Onyx...\n\n\
+¿Podrías decírmela a continuación?: ")
+        indx = -1
+
+    if indx == -1:
+        onyxroot = backupname
+    else:
+        onyxroot = "/".join(folders[:indx + 1])
+
+    return onyxroot
+
+
+
 def colorfull(text: str, 
         color: str, 
         highlight:bool = False, 
@@ -153,9 +206,10 @@ def colorfull(text: str,
 
 
 
-def updateUniNotes(fullpath: str) -> None:
+def updateUniNotes(unidir: str) -> None:
     "Comprueba que estemos usando la  ultima versión de uni notes"
-    os.system(f"cd {fullpath} && git branch main && git pull")
+    os.system(f"cd {unidir} && git checkout main && git pull")
+    return
 
 
 
@@ -184,6 +238,33 @@ def isFile(path: str) -> bool:
     return os.path.isfile(path)
 
 
+def processFile(filepath:str) -> bool:
+    """
+    Funcion que dado un archivo, lo procesara y lo metera
+    en onyx
+    """
+    raise NotImplementedError()
+    # 1. Barra de progreso
+    # 2. Abrir el archivo
+    # 3. Buscar y convertir imagenes
+    # 4. Mover imagenes a la carpeta de imagenes de onyx
+    # 5. Guardar el archivo en la carpeta de onyx correspondiente.
+
+
+
+
+def onyxConvert(target, unidir, onyxdir) -> bool:
+    """
+    Funcion que discierne entre archivos
+    carpetas y los convierte.
+    """
+    raise NotImplementedError()
+
+    # 1. Manejar los errores
+    # 2. Distinguir entre archivo/carpeta
+    # 3. Convertir usando processFile()
+
+
 '''
 ENTRADA DEL PROGRAMA
 --------------------------------------------------------------------
@@ -204,3 +285,22 @@ vuelve a ejecutar el script.\n')
     if not confirmArgs(uninotesroot, argpath):
         sys.exit()
 
+    # Obterner el path de la carpeta de onyx para
+    # empezar la conversion
+    onyxroot = getOnyxRootDir()
+
+    # Empezar a procesar el archivo o las carpetas
+    status = onyxConvert(argpath, uninotesroot, onyxroot)
+    if status:
+        print(f"\n{colorfull('EXITO', 'green', highlight=True)} \
+El/los documentos han sido convertidos satisfactoriamente\n")
+
+    else:
+        print(f"\n{colorfull('ERROR', 'red', highlight=True)} \
+Ha habido un error procesando el/los documentos...\n")
+        # Hacer un `git stash`
+        # ----------------------------------------------------
+
+        # ----------------------------------------------------
+        # Salir del programa con un codigo de error
+        sys.exit(2)
