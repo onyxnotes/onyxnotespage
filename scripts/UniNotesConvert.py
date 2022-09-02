@@ -44,7 +44,9 @@ LIBRERÍAS
 '''
 import os
 import sys
+import re
 import argparse
+from tqdm import tqdm
 from typing import Tuple
 
 try: 
@@ -245,8 +247,39 @@ def processFile(filepath:str) -> bool:
     """
     raise NotImplementedError()
     # 1. Barra de progreso
+        # Se va a usar por facilidad la barra de progreso tqdm
     # 2. Abrir el archivo
+        # Primero haremos una comprobacion de que el archivo
+        # es del formato markdown
+    filelist = filepath.split(".")
+    name = ".".join(filelist[:-1])
+    ext = filelist[-1].lower()
+    if ext != "md":
+        print(f"{colorfull('ALERTA', 'magenta', highlight=True)}:\
+ El archivo {filepath} no es un archivo de markdown.\n\nIgnorandolo...\n")
+
+    else:
+        with open(filepath, "r") as file:
+            # Read the file, clean unicode, and
+            # remove newlines
+            contents = tuple(
+                    map(str.rstrip, file.readlines())
+                    )
+
+            # Read the file lines
+            nline = 0
+            for line in tqdm(
+                    contents,
+                    desc="Convirtiendo las lineas",
+                    unit="lines"
+                    ):
+                nline += 1
+                # Skip empty lines:
+                if len(line) != 0:
     # 3. Buscar y convertir imagenes
+                    # Use the `re` module
+
+
     # 4. Mover imagenes a la carpeta de imagenes de onyx
     # 5. Guardar el archivo en la carpeta de onyx correspondiente.
 
