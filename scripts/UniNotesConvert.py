@@ -38,16 +38,16 @@ Funcionamiento:
     completa (desde ~/) al archivo o carpeta que se quiera convertir
 '''
 
-'''
-LIBRERÍAS
---------------------------------------------------------------------
-'''
+####################################
+# LIBRERÍAS
+####################################
 import os
 import sys
 import re
 import argparse
+import subprocess
 from tqdm import tqdm
-from typing import Tuple
+from typing import Tuple, List
 
 try: 
     from termcolor import colored
@@ -62,10 +62,42 @@ To install it, stop the script with CTRL-C and type:
 """)
     COLORFUL = False
 
-'''
-FUNCIONES
---------------------------------------------------------------------
-'''
+
+####################################
+# VARIABLES GLOBALES
+####################################
+HOME = os.environ["HOME"]
+ONYXURL = "https://onyxnotes.com"
+# Prefijo a la carpeta de contenido de onyx
+ONYXCONTENTPREFIX = "content/en" # sin / al final para ser consistentes
+# Prefijo a la carpeta de contenido de onyx
+ONYXCONTENTPREFIX = "content/en" # sin / al final para ser consistentes
+# Siempre que haya una imagen, con o sin centrado o
+# ancho, hara match
+CHARSTOREMOVE = ["!", "[", "]"]
+# Carpeta de onyxnotes donde irán las imágenes
+IMAGEFOLDER = "images/PastedImages"
+# Patrón de regex para encontrar imágenes
+IMGSEARCHTXT =  r"\!\[\[[\w\s]+\.[jsp][pvn][e]*g[\w\s\|]*\]\]"
+IMGSEARCH = re.compile(IMGSEARCHTXT)
+# Patrón de regex para encontrar imágenes centradas
+IMGSEARCHCT = re.compile(
+        rf'\<span\s+class=\"*centerImg\"*\s*\>\s*{IMGSEARCHTXT}\s*\<\/span\>'
+)
+
+# Patrón de regex para encontrar enlaces a otros apuntes
+# NOTE: Solo se puede usar después de haber buscado imágenes,
+# sino encontrará ciertas imagenes como jpg o jpegs o otros si hay
+# un espacio antes de la "|"
+LINKSEARCH = re.compile(
+        r'\!*\[\[[\w\.\-\s]*\#*[\w\.\-\s\^]*(?<!\.png)\|*[\w\.\-\s]*(?<!\.png)\]\]'
+        )
+# Lista de imagenes encontradas
+imagequeue: List[str] = []
+
+####################################
+# FUNCIONES
+####################################
 def getArgumentParser() -> argparse.ArgumentParser:
     """
     Function that prepares an argument parser with argument options
@@ -131,6 +163,9 @@ def getArguments() -> Tuple[str, str]:
         # exit the program
         sys.exit()
 
+    elif "~" in filepath:
+        filepath = filepath.replace("~", HOME)
+
     # Get the folder in which Uni Notes is stored
     folders = filepath.split("/")
     indx = 0
@@ -148,9 +183,9 @@ def getArguments() -> Tuple[str, str]:
 
     # if the folder wasn't found
     if indx == -1:
-        uninotesroot = backupname
+        uninotesroot = backupname.replace("~", HOME)
     else:
-        uninotesroot = "/".join(folders[:indx + 1])
+        uninotesroot = ("/".join(folders[:indx + 1])).replace("~", HOME)
 
     # Check the folder specified is indeed a subfolder of the root
     if uninotesroot in filepath:
@@ -164,6 +199,7 @@ def getOnyxRootDir() -> str:
     """
     Devuelve la raiz de la carpeta de onyx
     del sistema
+    La devuelve SIN el último /
     """
     folders = os.getcwd().split("/")
     indx = 0
@@ -186,7 +222,7 @@ def getOnyxRootDir() -> str:
     else:
         onyxroot = "/".join(folders[:indx + 1])
 
-    return onyxroot
+    return onyxroot.replace("~", HOME)
 
 
 
@@ -240,48 +276,425 @@ def isFile(path: str) -> bool:
     return os.path.isfile(path)
 
 
-def processFile(filepath:str) -> bool:
+
+def removeChars(string: str, *args) -> str:
     """
-    Funcion que dado un archivo, lo procesara y lo metera
-    en onyx
+    Función que elimina una serie de caracteres
+    especificados de una string
     """
-    raise NotImplementedError()
+    pstring = string
+
+    if isinstance(args[0], list):
+        args = args[0]
+
+    for i in args:
+        pstring = pstring.replace(i, "")
+
+    return pstring
+
+
+
+def addImgToQueue(imgname: str, imagequeue=imagequeue) -> None:
+    """
+    Añade una imagen a la lista de imagenes encontradas,
+    con el objetivo de después poder copiarlas todas a 
+    su ubicación final
+    """
+    imagequeue.append(imgname)
+    return
+
+
+def convertLine(line: str, 
+        # Para encontrar imagenes en general
+        imgSearch=IMGSEARCH,
+        imgSearchC=IMGSEARCHCT,
+        charstoremove=CHARSTOREMOVE,
+        imagefolder=IMAGEFOLDER) -> str:
+    """
+    Funcion que, especificada una linea,
+    devolvera la linea con imagenes en formato
+    HUGO
+    """
+    # TODO: valorar si la conversion de links lo
+    # hacemos dentro o fuera de esta funcion
+
+    def processLine(line):
+        """
+        Esta funcion, dada una linea, procesa la primera
+        imagen, y solo la primera que encuentra,
+        asi que en el caso de que solo haya una imagen, solo
+        se llama una sola vez
+        """
+        # Get all the matches in the line
+        mchs = imgSearch.findall(line)
+        # check if the image is centered
+        centMchs = imgSearchC.findall(line)
+
+        # If the image is centered
+        if len(centMchs):
+            tochange = centMchs[0]
+            imgstr = mchs[0]
+            imgstrclean = removeChars(imgstr, charstoremove)
+            
+            # Check if the image has specified width
+            if "|" in imgstr:
+                imgdata = [
+                        data.strip() for data \
+                        in imgstrclean.split("|")
+                        ]
+                imgname = imgdata[0]
+                # DEBUG: remove after use
+                print(f"Img data centrado: {imgdata}")
+                # Create the final image format
+                changeby = f'{{< globalimgsinaltct imgpath="{imagefolder}/{imgname}" res="{imgdata[1]}x" >}}'
+                # Substitute the old format by the new
+                line = line.replace(tochange, changeby)
+
+            # If the image has no specified width
+            else:
+                # Get the name of the file
+                # NOTE: This imgdata is NOT a list,
+                # but a string corresponding to the name
+                # of the file
+                imgdata = imgstrclean.strip()
+                imgname = imgdata
+                print(f'Nombre de la imagen sin width pero centrada: "{imgname}"')
+                # Create the final image format
+                changeby = f'{{< globalimgsinaltctww imgpath="{imagefolder}/{imgname}" >}}'
+                # Substitute the old format by the new
+                line = line.replace(tochange, changeby)
+
+        # If the image is NOT centered
+        else:
+            imgstr = mchs[0]
+            tochange = imgstr
+            imgstrclean = removeChars(imgstr, charstoremove)
+
+            # Check if the image has specified width
+            if "|" in imgstr:
+                imgdata = [
+                        data.strip() for data \
+                        in imgstrclean.split("|")
+                        ]
+                imgname = imgdata[0]
+                # DEBUG: remove after use
+                print(f"Img data sin centrar: {imgdata}")
+                # Create the final image format
+                changeby = f'{{< globalimgsinalt imgpath="{imagefolder}/{imgname}" res="{imgdata[1]}x" >}}'
+                # Substitute the old format by the new
+                line = line.replace(tochange, changeby)
+
+
+            # If the image has NO specified width
+            else:
+                # Get the name of the file
+                # NOTE: This imgdata is NOT a list,
+                # but a string corresponding to the name
+                # of the file
+                imgdata = imgstrclean.strip()
+                imgname = imgdata
+                print(f'Nombre de la imagen sin width y sin centrar: "{imgname}"')
+                # Create the final image format
+                changeby = f'{{< globalimgsinaltww imgpath="{imagefolder}/{imgname}" >}}'
+                # Substitute the old format by the new
+                line = line.replace(tochange, changeby)
+
+        # Call the method to move the line
+        addImgToQueue(imgname)
+        # Return the replaced line
+        return line
+
+    # Get the matches
+    mchs = imgSearch.findall(line)
+    # In case there is only one image
+    if len(mchs) == 1:
+        line = processLine(line)
+
+    # If there is more than one image:
+    else:
+        # Create an iterable list to iterate
+        # between matches
+        mchlist = mchs.copy()
+        for m in mchlist:
+            line = processLine(line)
+            print(f"New line update: {line}")
+
+    return line
+
+
+
+
+def convertLineLink(line: str, 
+        # Para por si tenemos un link que sea una
+        # referencia a un heading de si mismo
+        selffilename: str,
+        uninotesdir:str,
+        # Para encontrar imagenes en general
+        linksearch: re.Pattern =LINKSEARCH,
+        charstoremove: List[str] =CHARSTOREMOVE,
+        url: str =ONYXURL,
+        contentprefix: str =ONYXCONTENTPREFIX) -> str:
+    """
+    Funcion que, especificada una linea,
+    devolvera la linea con links en formato
+    markdown con los endpoints para Onyx
+    """
+
+    def getUniNotesInnerFolders(filename:str) -> str|None:
+        """Función que obtiene el path de las carpetas intermedias desde
+        la root de uninotes de un archivo especificando su nombre"""
+        uninotesdirshell = uninotesdir.replace(" ", "\\ ")
+        try:
+
+            output = subprocess.check_output(
+                    f'cd {uninotesdirshell} && fd | grep "{filename}"',
+                    shell=True).decode()
+
+            if output == "":
+                print(f"WARNING, the innerfolders of {filename} could not be found")
+                innerfolders = None
+
+            else:
+                outputsplit = output[2:].split("/")
+                innerfolders = "/".join(outputsplit[:-1])
+
+        except subprocess.CalledProcessError as err:
+            print(err)
+            innerfolders = None
+
+
+        return innerfolders
+
+    # Get all the matches in the line
+    mchs = linksearch.findall(line)
+
+    # Go through all the matches
+    for tochange in mchs:
+        # If the link is not of the type `!`
+        if "^" in tochange:
+            if "|" in tochange:
+                linkclean = removeChars(tochange, charstoremove)
+                linksplit = [part.strip() for part in linkclean.split("|")]
+                changeby = f'**{linksplit[1]}**'
+            else:
+                changeby = f'LINK ROTO: {tochange}'
+            line = line.replace(tochange, changeby)
+
+
+        else:
+            if "!" not in tochange:
+                linkclean = removeChars(tochange, charstoremove)
+
+                # Check if the link has |
+                if "|" in tochange:
+                    linksplit = [part.strip() for part in linkclean.split("|")]
+                    linkpath = linksplit[0]
+                    linktext = linksplit[1]
+
+                    #Check if the link has #
+                    if "#" in tochange:
+                        linkpathsplit = [part.strip() for part in linkpath.split("#")]
+                        #TODO: Comprobar la transformacion de los nombres de los archivos a links
+                        filename = linkpathsplit[0]
+
+                        # If we have a self link
+                        if len(filename) == 0:
+                            filename = selffilename
+
+                        # Get the inner folders
+                        innerfolders = getUniNotesInnerFolders(filename)
+                        if innerfolders is None:
+                            print("WARNING, no innerfolders found!")
+                            innerfolders = ""
+
+                        #TODO: Comprobar la transformacion de los nombres de las carpetas a links
+                        innerfolderslink = innerfolders.lower().replace(" ", "-")
+
+                        #TODO: Comprobar la transformacion de " " a "-"
+                        linkname = filename.lower().replace(" ", "-")
+                        # Change the name of the pointer that is being pointed to 
+                        # to use HUGO's syntax
+                        # ie: https://onyxnotes.netlify.app/en/docs/prologue/test/#heading-1
+                        linkheaderpointer = linkpathsplit[1].lower().replace(" ", "-")
+                        changeby = f'[{linktext}]({url}/{contentprefix}/{innerfolderslink}/{linkname}/#{linkheaderpointer})'
+
+                    else:
+                        filename = linkpath
+
+                        # Get the inner folders
+                        innerfolders = getUniNotesInnerFolders(filename)
+                        if innerfolders is None:
+                            print("WARNING, no innerfolders found!")
+                            innerfolders = ""
+
+                        #TODO: Comprobar la transformacion de los nombres de las carpetas a links
+                        innerfolderslink = innerfolders.lower().replace(" ", "-")
+
+                        #TODO: Comprobar la transformacion de " " a "-"
+                        linkname = linkpath.lower().replace(" ", "-")
+                        changeby = f'[{linktext}]({url}/{contentprefix}/{innerfolderslink}/{linkname})'
+
+                #No custom text to display
+                else:
+                    linkpath = linkclean
+                    linktext = linkpath.strip()
+                    #TODO: Comprobar la transformacion de los nombres de los archivos a links
+
+                    #Check if the link has #
+                    if "#" in tochange:
+                        linkpathsplit = [part.strip() for part in linkpath.split("#")]
+                        #TODO: Comprobar la transformacion de los nombres de los archivos a links
+                        filename = linkpathsplit[0]
+
+                        # If we have a self link
+                        if len(filename) == 0:
+                            filename = selffilename
+
+                        # Get the inner folders
+                        innerfolders = getUniNotesInnerFolders(filename)
+                        if innerfolders is None:
+                            print("WARNING, no innerfolders found!")
+                            innerfolders = ""
+
+                        #TODO: Comprobar la transformacion de los nombres de las carpetas a links
+                        innerfolderslink = innerfolders.lower().replace(" ", "-")
+                        #TODO: Comprobar la transformacion de " " a "-"
+                        linkname = filename.lower().replace(" ", "-")
+                        # Change the name of the pointer that is being pointed to 
+                        # to use HUGO's syntax
+                        # ie: https://onyxnotes.netlify.app/en/docs/prologue/test/#heading-1
+                        linkheaderpointer = linkpathsplit[1].lower().replace(" ", "-")
+                        changeby = f'[{linktext}]({url}/{contentprefix}/{innerfolderslink}/{linkname}/#{linkheaderpointer})'
+
+                    else:
+                        # Get the inner folders
+                        filename = linkpath.strip()
+                        innerfolders = getUniNotesInnerFolders(filename)
+                        if innerfolders is None:
+                            print("WARNING, no innerfolders found!")
+                            innerfolders = ""
+
+                        #TODO: Comprobar la transformacion de los nombres de las carpetas a links
+                        innerfolderslink = innerfolders.lower().replace(" ", "-")
+                        linkname = linkpath.lower().replace(" ", "-")
+                        changeby = f'[{linktext}]({url}/{contentprefix}/{innerfolderslink}/{linkname})'
+
+                # Change the line
+                line = line.replace(tochange, changeby)
+            
+            # If it does have !
+            else:
+                linkclean = removeChars(tochange, charstoremove)
+                linkpath = linkclean
+                linktext = linkpath.strip()
+                #TODO: Comprobar la transformacion de los nombres de los archivos a links
+
+                #Check if the link has #
+                if "#" in tochange:
+                    linkpathsplit = [part.strip() for part in linkpath.split("#")]
+                    #TODO: Comprobar la transformacion de los nombres de los archivos a links
+                    filename = linkpathsplit[0]
+
+                    # If we have a self link
+                    if len(filename) == 0:
+                        filename = selffilename
+
+                    # Get the inner folders
+                    innerfolders = getUniNotesInnerFolders(filename)
+                    if innerfolders is None:
+                        print("WARNING, no innerfolders found!")
+                        innerfolders = ""
+
+                    #TODO: Comprobar la transformacion de los nombres de las carpetas a links
+                    innerfolderslink = innerfolders.lower().replace(" ", "-")
+                    #TODO: Comprobar la transformacion de " " a "-"
+                    linkname = filename.lower().replace(" ", "-")
+                    # Change the name of the pointer that is being pointed to 
+                    # to use HUGO's syntax
+                    # ie: https://onyxnotes.netlify.app/en/docs/prologue/test/#heading-1
+                    linkheaderpointer = linkpathsplit[1].lower().replace(" ", "-")
+                    changeby = f'[{linktext}]({url}/{contentprefix}/{innerfolderslink}/{linkname}/#{linkheaderpointer})'
+
+                else:
+                    # Get the inner folders
+                    filename = linkpath.strip()
+                    innerfolders = getUniNotesInnerFolders(filename)
+                    if innerfolders is None:
+                        print("WARNING, no innerfolders found!")
+                        innerfolders = ""
+
+                    #TODO: Comprobar la transformacion de los nombres de las carpetas a links
+                    innerfolderslink = innerfolders.lower().replace(" ", "-")
+                    linkname = linkpath.lower().replace(" ", "-")
+                    changeby = f'[{linktext}]({url}/{contentprefix}/{innerfolderslink}/{linkname})'
+
+                # Change the line
+                line = line.replace(tochange, changeby)
+
+    return line
+
+
+
+def processFile(filepath:str, uninotesdir:str, imgsearch=IMGSEARCH, linksearch=LINKSEARCH) -> bool:
+    """
+    Funcion que dado un archivo, lo procesara y lo devuelve en formato de HUGO
+    """
+    # raise NotImplementedError()
     # 1. Barra de progreso
         # Se va a usar por facilidad la barra de progreso tqdm
     # 2. Abrir el archivo
         # Primero haremos una comprobacion de que el archivo
         # es del formato markdown
-    filelist = filepath.split(".")
-    name = ".".join(filelist[:-1])
-    ext = filelist[-1].lower()
+    filepathsplit = filepath.split("/")
+    filesplit = filepathsplit[-1].split(".")
+    filename = ".".join(filesplit[:-1])
+    ext = filesplit[-1].lower()
     if ext != "md":
         print(f"{colorfull('ALERTA', 'magenta', highlight=True)}:\
  El archivo {filepath} no es un archivo de markdown.\n\nIgnorandolo...\n")
 
     else:
+        # Read the file, 
         with open(filepath, "r") as file:
-            # Read the file, clean unicode, and
-            # remove newlines
-            contents = tuple(
-                    map(str.rstrip, file.readlines())
-                    )
+            # clean unicode, and remove newlines
+            contents: List[str] = [line.rstrip() for line in file.readlines()]
+            # Create an iterable with a progress bar
+            lineIterable = tqdm(contents, desc="Convirtiendo las lineas", unit="lines")
 
             # Read the file lines
-            nline = 0
-            for line in tqdm(
-                    contents,
-                    desc="Convirtiendo las lineas",
-                    unit="lines"
-                    ):
-                nline += 1
+            nl: int = 0
+            for line in lineIterable:
                 # Skip empty lines:
-                if len(line) != 0:
+                if len(line):
     # 3. Buscar y convertir imagenes
-                    # Use the `re` module
+                    # search images using the Regex pattern
+                    imgmch = imgsearch.findall(line)
+                    if len(imgmch):
+                        print(f"Image found in line {nl + 1}!:")
+                        print(imgmch,"\n")
+                        contents[nl] = convertLine(line)
+                        #NOTE: Importante actualizar la linea 
+                        # tras analizar las imagenes
+                        line = contents[nl]
+
+    # 4. Buscar y convertir links
+                    # search links using the Regex pattern
+                    # after having found the images
+                    linkmch = linksearch.findall(line)
+                    if len(linkmch):
+                        print(f"link found in line {nl + 1}!:")
+                        print(linkmch, "\n")
+                        # NOTE: Es importante especificar la root
+                        # de uninotes en convertLineLink para encontrar las carpetas 
+                        # intermedias de los archivos para poner bien
+                        # las imagenes en la pagina web
+                        contents[nl] = convertLineLink(line, 
+                                selffilename = filename, 
+                                uninotesdir=uninotesdir
+                                )
+                nl += 1
 
 
-    # 4. Mover imagenes a la carpeta de imagenes de onyx
-    # 5. Guardar el archivo en la carpeta de onyx correspondiente.
 
 
 
@@ -296,27 +709,26 @@ def onyxConvert(target, unidir, onyxdir) -> bool:
     # 1. Manejar los errores
     # 2. Distinguir entre archivo/carpeta
     # 3. Convertir usando processFile()
+    # 4. Mover imagenes a la carpeta de imagenes de onyx
+    # 5. Guardar el archivo en la carpeta de onyx correspondiente.
 
-
-'''
-ENTRADA DEL PROGRAMA
---------------------------------------------------------------------
-'''
-
+####################################
+# ENTRADA DEL PROGRAMA
+####################################
 if __name__ == "__main__":
     # Comprobar que estamos desde la carpeta de onyx
     if not currentFolderCheck():
         print(f'\n{colorfull("ERROR", "red", highlight=True)}: No te encuentras \
 en ninguna carpeta o subcarpeta de onyx.\nPor favor dirígete a una de ellas y \
 vuelve a ejecutar el script.\n')
-        sys.exit()
+        sys.exit(2)
 
     # Get both the root and file/dir
     uninotesroot, argpath = getArguments()
 
     # Confirmar argumentos
     if not confirmArgs(uninotesroot, argpath):
-        sys.exit()
+        sys.exit(1)
 
     # Obterner el path de la carpeta de onyx para
     # empezar la conversion
