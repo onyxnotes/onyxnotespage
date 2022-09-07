@@ -47,7 +47,7 @@ import re
 import argparse
 import subprocess
 from tqdm import tqdm
-from typing import Tuple, List
+from typing import Tuple, List, Union
 
 try: 
     from termcolor import colored
@@ -100,7 +100,7 @@ imagequeue: List[str] = []
 ####################################
 def getArgumentParser() -> argparse.ArgumentParser:
     """
-    Function that prepares an argument parser with argument options
+   Function that prepares an argument parser with argument options
     (To be used indide getArguments)
     """
     parser = argparse.ArgumentParser(
@@ -164,6 +164,8 @@ def getArguments() -> Tuple[str, str]:
         sys.exit()
 
     elif "~" in filepath:
+        # subprocess modules do not do a good job when passing `~`,
+        # so we will replace it with the system's own home dir
         filepath = filepath.replace("~", HOME)
 
     # Get the folder in which Uni Notes is stored
@@ -179,19 +181,21 @@ def getArguments() -> Tuple[str, str]:
     else:
         backupname = input("No he sido capaz de encontrar la carpeta de Uni notes...\n\n\
 ¿Podrías decírmela a continuación?: ")
+        # Flag to indicate folder not found
         indx = -1
 
     # if the folder wasn't found
     if indx == -1:
         uninotesroot = backupname.replace("~", HOME)
     else:
+        # if found, reconstruct the folders
         uninotesroot = ("/".join(folders[:indx + 1])).replace("~", HOME)
 
     # Check the folder specified is indeed a subfolder of the root
     if uninotesroot in filepath:
         return (uninotesroot, filepath)
     else:
-        raise NameError(f"{filepath} is not a subfolder of {uninotesroot}!")
+        raise ValueError(f"{filepath} is not a subfolder of {uninotesroot}!")
 
 
 
@@ -215,6 +219,7 @@ def getOnyxRootDir() -> str:
     else:
         backupname = input("No he sido capaz de encontrar la carpeta de Onyx...\n\n\
 ¿Podrías decírmela a continuación?: ")
+        # set -1 as flag for not found
         indx = -1
 
     if indx == -1:
@@ -222,6 +227,7 @@ def getOnyxRootDir() -> str:
     else:
         onyxroot = "/".join(folders[:indx + 1])
 
+    # return the folder without `~`
     return onyxroot.replace("~", HOME)
 
 
@@ -304,7 +310,7 @@ def addImgToQueue(imgname: str, imagequeue=imagequeue) -> None:
     return
 
 
-def convertLine(line: str, 
+def convertImages(line: str, 
         # Para encontrar imagenes en general
         imgSearch=IMGSEARCH,
         imgSearchC=IMGSEARCHCT,
@@ -315,8 +321,34 @@ def convertLine(line: str,
     devolvera la linea con imagenes en formato
     HUGO
     """
-    # TODO: valorar si la conversion de links lo
-    # hacemos dentro o fuera de esta funcion
+    def generateLineWbar(line, tochange, imgdata) -> str:
+        """
+        Generates the string for an image with width information
+        """
+        imgname = imgdata[0]
+        # DEBUG: remove after use
+        print(f"Img data centrado: {imgdata}")
+        # Create the final image format
+        changeby = f'{{< globalimgsinaltct imgpath="{imagefolder}/{imgname}" res="{imgdata[1]}x" >}}'
+        # Add the image name to the queue
+        addImgToQueue(imgname)
+        # Substitute the old format by the new
+        return line.replace(tochange, changeby)
+
+    def generateLineWObar(line, tochange, imgstr) -> str:
+        """
+        Generates the string for an image without
+        width information
+        """
+        # Get the name of the file
+        imgname = imgstr.strip()
+        print(f'Nombre de la imagen sin width pero centrada: "{imgname}"')
+        # Create the final image format
+        changeby = f'{{< globalimgsinaltctww imgpath="{imagefolder}/{imgname}" >}}'
+        # Add the image name to the queue
+        addImgToQueue(imgname)
+        # Substitute the old format by the new
+        return line.replace(tochange, changeby)
 
     def processLine(line):
         """
@@ -332,75 +364,41 @@ def convertLine(line: str,
 
         # If the image is centered
         if len(centMchs):
+            # target to change will be the first match of the centered
+            # list matches
             tochange = centMchs[0]
+            # Name of the image to change without the <span ...>
             imgstr = mchs[0]
             imgstrclean = removeChars(imgstr, charstoremove)
-            
             # Check if the image has specified width
             if "|" in imgstr:
                 imgdata = [
                         data.strip() for data \
                         in imgstrclean.split("|")
                         ]
-                imgname = imgdata[0]
-                # DEBUG: remove after use
-                print(f"Img data centrado: {imgdata}")
-                # Create the final image format
-                changeby = f'{{< globalimgsinaltct imgpath="{imagefolder}/{imgname}" res="{imgdata[1]}x" >}}'
-                # Substitute the old format by the new
-                line = line.replace(tochange, changeby)
+                line = generateLineWbar(line, tochange, imgdata)
 
             # If the image has no specified width
             else:
-                # Get the name of the file
-                # NOTE: This imgdata is NOT a list,
-                # but a string corresponding to the name
-                # of the file
-                imgdata = imgstrclean.strip()
-                imgname = imgdata
-                print(f'Nombre de la imagen sin width pero centrada: "{imgname}"')
-                # Create the final image format
-                changeby = f'{{< globalimgsinaltctww imgpath="{imagefolder}/{imgname}" >}}'
-                # Substitute the old format by the new
-                line = line.replace(tochange, changeby)
+                line = generateLineWObar(line, tochange, imgstrclean)
 
         # If the image is NOT centered
         else:
             imgstr = mchs[0]
             tochange = imgstr
             imgstrclean = removeChars(imgstr, charstoremove)
-
             # Check if the image has specified width
             if "|" in imgstr:
                 imgdata = [
                         data.strip() for data \
                         in imgstrclean.split("|")
                         ]
-                imgname = imgdata[0]
-                # DEBUG: remove after use
-                print(f"Img data sin centrar: {imgdata}")
-                # Create the final image format
-                changeby = f'{{< globalimgsinalt imgpath="{imagefolder}/{imgname}" res="{imgdata[1]}x" >}}'
-                # Substitute the old format by the new
-                line = line.replace(tochange, changeby)
-
+                line = generateLineWbar(line, tochange, imgdata)
 
             # If the image has NO specified width
             else:
-                # Get the name of the file
-                # NOTE: This imgdata is NOT a list,
-                # but a string corresponding to the name
-                # of the file
-                imgdata = imgstrclean.strip()
-                imgname = imgdata
-                print(f'Nombre de la imagen sin width y sin centrar: "{imgname}"')
-                # Create the final image format
-                changeby = f'{{< globalimgsinaltww imgpath="{imagefolder}/{imgname}" >}}'
-                # Substitute the old format by the new
-                line = line.replace(tochange, changeby)
+                line = generateLineWObar(line, tochange, imgstrclean)
 
-        # Call the method to move the line
-        addImgToQueue(imgname)
         # Return the replaced line
         return line
 
@@ -415,7 +413,7 @@ def convertLine(line: str,
         # Create an iterable list to iterate
         # between matches
         mchlist = mchs.copy()
-        for m in mchlist:
+        for _ in mchlist:
             line = processLine(line)
             print(f"New line update: {line}")
 
@@ -424,28 +422,30 @@ def convertLine(line: str,
 
 
 
-def convertLineLink(line: str, 
-        # Para por si tenemos un link que sea una
-        # referencia a un heading de si mismo
-        selffilename: str,
-        uninotesdir:str,
-        # Para encontrar imagenes en general
-        linksearch: re.Pattern =LINKSEARCH,
-        charstoremove: List[str] =CHARSTOREMOVE,
-        url: str =ONYXURL,
-        contentprefix: str =ONYXCONTENTPREFIX) -> str:
+def convertLinks(line: str, 
+                # Para por si tenemos un link que sea una
+                # referencia a un heading de si mismo
+                selffilename: str,
+                uninotesdir:str,
+                # Para encontrar imagenes en general
+                linksearch: re.Pattern =LINKSEARCH,
+                charstoremove: List[str] =CHARSTOREMOVE,
+                url: str =ONYXURL,
+                contentprefix: str =ONYXCONTENTPREFIX
+                ) -> str:
     """
     Funcion que, especificada una linea,
     devolvera la linea con links en formato
     markdown con los endpoints para Onyx
     """
 
-    def getUniNotesInnerFolders(filename:str) -> str|None:
+    def getUniNotesInnerFolders(filename:str) -> Union[str,None]:
         """Función que obtiene el path de las carpetas intermedias desde
         la root de uninotes de un archivo especificando su nombre"""
+
+        # Escape space characters
         uninotesdirshell = uninotesdir.replace(" ", "\\ ")
         try:
-
             output = subprocess.check_output(
                     f'cd {uninotesdirshell} && fd | grep "{filename}"',
                     shell=True).decode()
@@ -458,10 +458,10 @@ def convertLineLink(line: str,
                 outputsplit = output[2:].split("/")
                 innerfolders = "/".join(outputsplit[:-1])
 
+        # In case the subprocess fails
         except subprocess.CalledProcessError as err:
             print(err)
             innerfolders = None
-
 
         return innerfolders
 
@@ -633,6 +633,29 @@ def convertLineLink(line: str,
 
     return line
 
+def checkExtension(filepath, ext) -> bool:
+    """
+    Check that the file that is going to be
+    parsed is of the markdown extension
+    """
+    if ext != "md":
+        print(f"{colorfull('ALERTA', 'magenta', highlight=True)}:\
+ El archivo {filepath} no es un archivo de markdown.\n\nIgnorandolo...\n")
+        return False
+    else:
+        return True
+
+
+def getFileNameAndExt(filepath):
+    """
+    From a full file path, extract the file's name
+    and extension
+    """
+    filepathsplit = filepath.split("/")
+    filesplit = filepathsplit[-1].split(".")
+    filename = ".".join(filesplit[:-1])
+    ext = filesplit[-1].lower()
+    return (filename, ext)
 
 
 def processFile(filepath:str, uninotesdir:str, imgsearch=IMGSEARCH, linksearch=LINKSEARCH) -> bool:
@@ -645,15 +668,9 @@ def processFile(filepath:str, uninotesdir:str, imgsearch=IMGSEARCH, linksearch=L
     # 2. Abrir el archivo
         # Primero haremos una comprobacion de que el archivo
         # es del formato markdown
-    filepathsplit = filepath.split("/")
-    filesplit = filepathsplit[-1].split(".")
-    filename = ".".join(filesplit[:-1])
-    ext = filesplit[-1].lower()
-    if ext != "md":
-        print(f"{colorfull('ALERTA', 'magenta', highlight=True)}:\
- El archivo {filepath} no es un archivo de markdown.\n\nIgnorandolo...\n")
+    filename, ext = getFileNameAndExt(filepath)
 
-    else:
+    if checkExtension(filepath, ext):
         # Read the file, 
         with open(filepath, "r") as file:
             # clean unicode, and remove newlines
@@ -672,7 +689,7 @@ def processFile(filepath:str, uninotesdir:str, imgsearch=IMGSEARCH, linksearch=L
                     if len(imgmch):
                         print(f"Image found in line {nl + 1}!:")
                         print(imgmch,"\n")
-                        contents[nl] = convertLine(line)
+                        contents[nl] = convertImages(line)
                         #NOTE: Importante actualizar la linea 
                         # tras analizar las imagenes
                         line = contents[nl]
@@ -688,11 +705,13 @@ def processFile(filepath:str, uninotesdir:str, imgsearch=IMGSEARCH, linksearch=L
                         # de uninotes en convertLineLink para encontrar las carpetas 
                         # intermedias de los archivos para poner bien
                         # las imagenes en la pagina web
-                        contents[nl] = convertLineLink(line, 
+                        contents[nl] = convertLinks(line, 
                                 selffilename = filename, 
                                 uninotesdir=uninotesdir
                                 )
                 nl += 1
+
+    else:
 
 
 
@@ -723,7 +742,7 @@ en ninguna carpeta o subcarpeta de onyx.\nPor favor dirígete a una de ellas y \
 vuelve a ejecutar el script.\n')
         sys.exit(2)
 
-    # Get both the root and file/dir
+    # Get both the root and file/dir arguments
     uninotesroot, argpath = getArguments()
 
     # Confirmar argumentos
