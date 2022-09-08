@@ -48,6 +48,8 @@ import argparse
 import subprocess
 from tqdm import tqdm
 from typing import Tuple, List, Union
+import itertools
+
 
 try: 
     from termcolor import colored
@@ -310,7 +312,27 @@ def addImgToQueue(imgname: str, imagequeue=imagequeue) -> None:
     return
 
 
-def convertImages(line: str, 
+
+def convertImages(line:str, nl:int, contents: List[str], imgsearch=IMGSEARCH) -> str:
+    """
+    Método que dado una línea de un archivo, 
+    """
+    imgmch = imgsearch.findall(line)
+    if len(imgmch):
+        print(f"Image found in line {nl + 1}!:")
+        print(imgmch,"\n")
+        contents[nl] = _convertImages(line)
+        #NOTE: Importante actualizar la linea 
+        # tras analizar las imagenes
+        line = contents[nl]
+        return line
+    else:
+        return line
+
+
+
+
+def _convertImages(line: str, 
         # Para encontrar imagenes en general
         imgSearch=IMGSEARCH,
         imgSearchC=IMGSEARCHCT,
@@ -319,7 +341,8 @@ def convertImages(line: str,
     """
     Funcion que, especificada una linea,
     devolvera la linea con imagenes en formato
-    HUGO
+    HUGO.
+    *Necesita ser llamada desde convertImages
     """
     def generateLineWbar(line, tochange, imgdata) -> str:
         """
@@ -420,18 +443,43 @@ def convertImages(line: str,
     return line
 
 
+def convertLinks(line:str, nl:int, contents: List[str], filepath: str, 
+        uninotesdir:str, linksearch=LINKSEARCH) -> str:
+    """
+    Método que dado una línea de un archivo, convertirá los links 
+    a formato HUGO
+    """
+    # search links using the Regex pattern
+    # after having found the images
+    linkmch = linksearch.findall(line)
+    if len(linkmch):
+        print(f"link found in line {nl + 1}!:")
+        print(linkmch, "\n")
+        # NOTE: Es importante especificar la root
+        # de uninotes en convertLineLink para encontrar las carpetas 
+        # intermedias de los archivos para poner bien
+        # las imagenes en la pagina web
+        contents[nl] = _convertLinks(line, 
+                selffilename = filename, 
+                uninotesdir=uninotesdir
+                )
+        line = contents[nl]
+        return line
+    else:
+        return line
 
 
-def convertLinks(line: str, 
+
+def _convertLinks(line: str, 
                 # Para por si tenemos un link que sea una
                 # referencia a un heading de si mismo
                 selffilename: str,
                 uninotesdir:str,
                 # Para encontrar imagenes en general
-                linksearch: re.Pattern =LINKSEARCH,
-                charstoremove: List[str] =CHARSTOREMOVE,
-                url: str =ONYXURL,
-                contentprefix: str =ONYXCONTENTPREFIX
+                linksearch: re.Pattern = LINKSEARCH,
+                charstoremove: List[str] = CHARSTOREMOVE,
+                url: str = ONYXURL,
+                contentprefix: str = ONYXCONTENTPREFIX
                 ) -> str:
     """
     Funcion que, especificada una linea,
@@ -658,62 +706,48 @@ def getFileNameAndExt(filepath):
     return (filename, ext)
 
 
-def processFile(filepath:str, uninotesdir:str, imgsearch=IMGSEARCH, linksearch=LINKSEARCH) -> bool:
+def processFileLines(filepath:str, uninotesdir:str) -> Union[List[str], None]:
     """
     Funcion que dado un archivo, lo procesara y lo devuelve en formato de HUGO
     """
     # raise NotImplementedError()
-    # 1. Barra de progreso
-        # Se va a usar por facilidad la barra de progreso tqdm
-    # 2. Abrir el archivo
-        # Primero haremos una comprobacion de que el archivo
-        # es del formato markdown
+    # Get both the filename and extension
     filename, ext = getFileNameAndExt(filepath)
-
+    # Primero haremos una comprobacion de que el archivo
+    # es del formato markdown
     if checkExtension(filepath, ext):
+    # 1. Abrir el archivo
         # Read the file, 
         with open(filepath, "r") as file:
             # clean unicode, and remove newlines
             contents: List[str] = [line.rstrip() for line in file.readlines()]
+    # 2. Barra de progreso
             # Create an iterable with a progress bar
-            lineIterable = tqdm(contents, desc="Convirtiendo las lineas", unit="lines")
+            lineIterable = tqdm(enumerate(contents), desc="Convirtiendo las lineas", unit="lines")
 
             # Read the file lines
-            nl: int = 0
-            for line in lineIterable:
+            for nl, line in lineIterable: #nl keeps track of the line number
                 # Skip empty lines:
                 if len(line):
     # 3. Buscar y convertir imagenes
-                    # search images using the Regex pattern
-                    imgmch = imgsearch.findall(line)
-                    if len(imgmch):
-                        print(f"Image found in line {nl + 1}!:")
-                        print(imgmch,"\n")
-                        contents[nl] = convertImages(line)
-                        #NOTE: Importante actualizar la linea 
-                        # tras analizar las imagenes
-                        line = contents[nl]
+                    line = convertImages(line, nl, contents)
 
     # 4. Buscar y convertir links
-                    # search links using the Regex pattern
-                    # after having found the images
-                    linkmch = linksearch.findall(line)
-                    if len(linkmch):
-                        print(f"link found in line {nl + 1}!:")
-                        print(linkmch, "\n")
-                        # NOTE: Es importante especificar la root
-                        # de uninotes en convertLineLink para encontrar las carpetas 
-                        # intermedias de los archivos para poner bien
-                        # las imagenes en la pagina web
-                        contents[nl] = convertLinks(line, 
-                                selffilename = filename, 
-                                uninotesdir=uninotesdir
-                                )
-                nl += 1
+                    line = convertLinks(line,
+                            nl,
+                            contents,
+                            filename,
+                            filepath, 
+                            uninotesdir
+                            )
 
+        convertedDoc = contents
+
+    # If the extension of the file was not markdown, return None
     else:
+        convertedDoc = None
 
-
+    return convertedDoc
 
 
 
@@ -723,7 +757,9 @@ def onyxConvert(target, unidir, onyxdir) -> bool:
     Funcion que discierne entre archivos
     carpetas y los convierte.
     """
+    print(target)
     raise NotImplementedError()
+    processFileLines(target, unidir)
 
     # 1. Manejar los errores
     # 2. Distinguir entre archivo/carpeta
