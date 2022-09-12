@@ -44,263 +44,26 @@ Funcionamiento:
 import os
 import sys
 import re
-import argparse
 import subprocess
 from tqdm import tqdm
-from typing import Tuple, List, Union
-import itertools
-
-
-try: 
-    from termcolor import colored
-    COLORFUL = True
-except ImportError as ie:
-    print(f"""The package `termcolor` is an optional dependency, \
-which seems to not be installed in your system.
-It's purpose is to provide colorful and more informative prints in the terminal
-
-To install it, stop the script with CTRL-C and type:
-\t>>> python3 -m pip install termcolor
-""")
-    COLORFUL = False
+from typing import List, Union
+from src.Patterns import * #import all patterns
+from src.GlobalVars import ONYXBASEURL, ONYXCONTENTPREFIX, \
+    ONYXIMAGEFOLDER, CHARSTOREMOVEIMG
+from src.ArgParser import getArguments
+from src.URLtools import Link, URLname
+from src.funcs import *
 
 
 ####################################
 # VARIABLES GLOBALES
 ####################################
-HOME = os.environ["HOME"]
-ONYXURL = "https://onyxnotes.com"
-# Prefijo a la carpeta de contenido de onyx
-ONYXCONTENTPREFIX = "content/en" # sin / al final para ser consistentes
-# Prefijo a la carpeta de contenido de onyx
-ONYXCONTENTPREFIX = "content/en" # sin / al final para ser consistentes
-# Siempre que haya una imagen, con o sin centrado o
-# ancho, hara match
-CHARSTOREMOVE = ["!", "[", "]"]
-# Carpeta de onyxnotes donde irán las imágenes
-IMAGEFOLDER = "images/PastedImages"
-# Patrón de regex para encontrar imágenes
-IMGSEARCHTXT =  r"\!\[\[[\w\s]+\.[jsp][pvn][e]*g[\w\s\|]*\]\]"
-IMGSEARCH = re.compile(IMGSEARCHTXT)
-# Patrón de regex para encontrar imágenes centradas
-IMGSEARCHCT = re.compile(
-        rf'\<span\s+class=\"*centerImg\"*\s*\>\s*{IMGSEARCHTXT}\s*\<\/span\>'
-)
-
-# Patrón de regex para encontrar enlaces a otros apuntes
-# NOTE: Solo se puede usar después de haber buscado imágenes,
-# sino encontrará ciertas imagenes como jpg o jpegs o otros si hay
-# un espacio antes de la "|"
-LINKSEARCH = re.compile(
-        r'\!*\[\[[\w\.\-\s]*\#*[\w\.\-\s\^]*(?<!\.png)\|*[\w\.\-\s]*(?<!\.png)\]\]'
-        )
 # Lista de imagenes encontradas
 imagequeue: List[str] = []
 
 ####################################
 # FUNCIONES
 ####################################
-def getArgumentParser() -> argparse.ArgumentParser:
-    """
-   Function that prepares an argument parser with argument options
-    (To be used indide getArguments)
-    """
-    parser = argparse.ArgumentParser(
-            description="""
-    Archivo que se encargará de convertir los apuntes que tenemos
-    de UniNotes a Onyx con el formato necesario para HUGO.
-    """
-            )
-    # Adding optional arguments
-    parser.add_argument("-p", "--path", help = "La path \
-    completa (desde ~/) al archivo o carpeta que se quiera convertir")
-
-    return parser
-
-
-
-def currentFolderCheck() -> bool:
-    "Comprueba que estamos en una carpeta o subcarpeta de onyxnotes"
-    # Get the path
-    currentpath = os.getcwd()
-    return "onyx" in currentpath.lower()
-
-
-
-def getArguments() -> Tuple[str, str]:
-    """
-    Function that reads and sets program variable when reading 
-    command-line arguments
-
-    return value:
-        (uni_notes dir, file or path to convert)
-    """
-    # Get the path
-    parser = getArgumentParser()
-    args = parser.parse_args()
-    filepath = args.path
-
-    """
-    Esta parte del codigo es muy sucia, deberia de ser
-    reimplementada. La funcionalidad de la que se
-    encarga es comprobar que en efecto se ha introducido
-    un argumento al script desde la terminal.
-    Si nada se ha introducido, solo imprime la ayuda y
-    sale del programa.
-
-    Esto probablemente se pueda implementar de una forma
-    mas limpia haciendo una subclase del parser que 
-    modifique el metodo error(), como explica este
-    este post de stack overflow:
-        https://stackoverflow.com/questions/4042452/display-help-message-with-python-argparse-when-script-is-called-without-any-argu
-
-    Aun asi por ahora funciona sin problemas, asi que
-    lo dejo para la posteridad.
-    """
-    # Check a filepath has been introduced, if not,
-    # exit and display help
-    if filepath is None:
-        # show parser help
-        parser.print_help()
-        # exit the program
-        sys.exit()
-
-    elif "~" in filepath:
-        # subprocess modules do not do a good job when passing `~`,
-        # so we will replace it with the system's own home dir
-        filepath = filepath.replace("~", HOME)
-
-    # Get the folder in which Uni Notes is stored
-    folders = filepath.split("/")
-    indx = 0
-    backupname = ""
-
-    for foldername in folders:
-        if "uni" in foldername.lower():
-            break
-        indx  += 1
-
-    else:
-        backupname = input("No he sido capaz de encontrar la carpeta de Uni notes...\n\n\
-¿Podrías decírmela a continuación?: ")
-        # Flag to indicate folder not found
-        indx = -1
-
-    # if the folder wasn't found
-    if indx == -1:
-        uninotesroot = backupname.replace("~", HOME)
-    else:
-        # if found, reconstruct the folders
-        uninotesroot = ("/".join(folders[:indx + 1])).replace("~", HOME)
-
-    # Check the folder specified is indeed a subfolder of the root
-    if uninotesroot in filepath:
-        return (uninotesroot, filepath)
-    else:
-        raise ValueError(f"{filepath} is not a subfolder of {uninotesroot}!")
-
-
-
-def getOnyxRootDir() -> str:
-    """
-    Devuelve la raiz de la carpeta de onyx
-    del sistema
-    La devuelve SIN el último /
-    """
-    folders = os.getcwd().split("/")
-    indx = 0
-    backupname = ""
-    for folder in folders:
-        if "onyx" in folder.lower():
-            break
-        indx += 1
-
-    # Si no se ha encontrado ninguna carpeta
-    # que contenga el nombre de onyx, 
-    # introducir manualmente.
-    else:
-        backupname = input("No he sido capaz de encontrar la carpeta de Onyx...\n\n\
-¿Podrías decírmela a continuación?: ")
-        # set -1 as flag for not found
-        indx = -1
-
-    if indx == -1:
-        onyxroot = backupname
-    else:
-        onyxroot = "/".join(folders[:indx + 1])
-
-    # return the folder without `~`
-    return onyxroot.replace("~", HOME)
-
-
-
-def colorfull(text: str, 
-        color: str, 
-        highlight:bool = False, 
-        available: bool = COLORFUL
-        ):
-    "Devuelve el text colorido en la terminal para drip extra"
-    # comprueba si está termcolor instalado
-    if available:
-        # comprueba si se ha especificado subrayado
-        if highlight:
-            return colored(text, color, attrs=["reverse", "blink"])
-        else:
-            return colored(text, color)
-    else:
-        return text
-
-
-
-def updateUniNotes(unidir: str) -> None:
-    "Comprueba que estemos usando la  ultima versión de uni notes"
-    os.system(f"cd {unidir} && git checkout main && git pull")
-    return
-
-
-
-def confirmArgs(uninotesroot, argpath) -> bool:
-    """
-    Comprueba que los argumentos han sido introducidos correctamente
-    Devuelve True si son aceptados
-    """
-    confirmation = input(f"\n[{colorfull('INFO', 'green')}]: ¿Es {colorfull(uninotesroot, 'magenta')}\
- el directorio de Uni notes, y {colorfull(argpath, 'magenta')} lo que se deseea convertir? [y/N]  ")
-
-    #Comprobar la confirmación
-    if confirmation.rstrip().lower().replace(" ", "") != "y":
-        print(f"\n{colorfull('ALERTA', 'magenta', highlight=True)}: Especifica \
-el argumento de `path` en la terminal con '-p'. \nEscribe {colorfull('python3 UniNotesConvert.py -h', 'green')} \
-para más infomación")
-
-        return False
-
-    else:
-        return True
-
-
-
-def isFile(path: str) -> bool:
-    return os.path.isfile(path)
-
-
-
-def removeChars(string: str, *args) -> str:
-    """
-    Función que elimina una serie de caracteres
-    especificados de una string
-    """
-    pstring = string
-
-    if isinstance(args[0], list):
-        args = args[0]
-
-    for i in args:
-        pstring = pstring.replace(i, "")
-
-    return pstring
-
-
 
 def addImgToQueue(imgname: str, imagequeue=imagequeue) -> None:
     """
@@ -331,13 +94,12 @@ def convertImages(line:str, nl:int, contents: List[str], imgsearch=IMGSEARCH) ->
 
 
 
-
 def _convertImages(line: str, 
         # Para encontrar imagenes en general
         imgSearch=IMGSEARCH,
         imgSearchC=IMGSEARCHCT,
-        charstoremove=CHARSTOREMOVE,
-        imagefolder=IMAGEFOLDER) -> str:
+        charstoremove=CHARSTOREMOVEIMG,
+        imagefolder=ONYXIMAGEFOLDER) -> str:
     """
     Funcion que, especificada una linea,
     devolvera la linea con imagenes en formato
@@ -477,8 +239,8 @@ def _convertLinks(line: str,
                 uninotesdir:str,
                 # Para encontrar imagenes en general
                 linksearch: re.Pattern = LINKSEARCH,
-                charstoremove: List[str] = CHARSTOREMOVE,
-                url: str = ONYXURL,
+                charstoremove: List[str] = CHARSTOREMOVEIMG,
+                url: str = ONYXBASEURL,
                 contentprefix: str = ONYXCONTENTPREFIX
                 ) -> str:
     """
@@ -681,29 +443,7 @@ def _convertLinks(line: str,
 
     return line
 
-def checkExtension(filepath, ext) -> bool:
-    """
-    Check that the file that is going to be
-    parsed is of the markdown extension
-    """
-    if ext != "md":
-        print(f"{colorfull('ALERTA', 'magenta', highlight=True)}:\
- El archivo {filepath} no es un archivo de markdown.\n\nIgnorandolo...\n")
-        return False
-    else:
-        return True
 
-
-def getFileNameAndExt(filepath):
-    """
-    From a full file path, extract the file's name
-    and extension
-    """
-    filepathsplit = filepath.split("/")
-    filesplit = filepathsplit[-1].split(".")
-    filename = ".".join(filesplit[:-1])
-    ext = filesplit[-1].lower()
-    return (filename, ext)
 
 
 def processFileLines(filepath:str, uninotesdir:str) -> Union[List[str], None]:

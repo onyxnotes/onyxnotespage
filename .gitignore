@@ -3,3 +3,7 @@ public
 resources
 .netlify
 .hugo_build.lock
+*.pyc
+*.pyi
+__pycache__
+*/__pycache__/*

@@ -1,0 +1,153 @@
+'''
+Created on Mon Sep 12 12:48:04 PM CEST 2022
+
+@file: funcs.py
+
+@author: Yoquec
+
+@desc:
+    Archivo que tendrá las helper functions para OnyxConvert.py
+'''
+import os
+from typing import Callable, Tuple
+from src.GlobalVars import HOME, COLORFUL
+import functools
+from src.URLtools import Dir
+
+if COLORFUL:
+    from termcolor import colored
+
+
+
+def isFile(path: str) -> bool:
+    return os.path.isfile(path)
+
+
+def removeChars(string: str, *args) -> str:
+    """
+    Función que elimina una serie de caracteres
+    especificados de una string
+    """
+    pstring = string
+
+    if isinstance(args[0], list):
+        args = args[0]
+
+    for i in args:
+        pstring = pstring.replace(i, "")
+
+    return pstring
+
+
+def currentFolderCheck() -> bool:
+    "Comprueba que estamos en una carpeta o subcarpeta de onyxnotes"
+    # Get the path
+    currentpath = os.getcwd()
+    return "onyx" in currentpath.lower()
+
+
+def checkExtension(filepath, ext) -> bool:
+    """
+    Check that the file that is going to be
+    parsed is of the markdown extension
+    """
+    if ext != "md":
+        print(f"{colorfull('ALERTA', 'magenta', highlight=True)}:\
+ El archivo {filepath} no es un archivo de markdown.\n\nIgnorandolo...\n")
+        return False
+    else:
+        return True
+
+
+def getFileNameAndExt(filepath: Dir) -> Tuple["str", "str"]:
+    """
+    From a full file path, extract the file's name
+    and extension
+    """
+    filepathsplit = filepath.link.split("/")
+    filesplit = filepathsplit[-1].split(".")
+    filename = ".".join(filesplit[:-1])
+    ext = filesplit[-1].lower()
+    return (filename, ext)
+
+
+def compose(*functions: Callable) -> Callable:
+    """
+    Function composition gracias a Arjaan codes :)
+    """
+    return functools.reduce(lambda f, g: lambda x: f(g(x)), functions)
+
+
+def getOnyxRootDir() -> str:
+    """
+    Devuelve la raiz de la carpeta de onyx
+    del sistema
+    La devuelve SIN el último /
+    """
+    folders = os.getcwd().split("/")
+    indx = 0
+    backupname = ""
+    for folder in folders:
+        if "onyx" in folder.lower():
+            break
+        indx += 1
+
+    # Si no se ha encontrado ninguna carpeta
+    # que contenga el nombre de onyx, 
+    # introducir manualmente.
+    else:
+        backupname = input("No he sido capaz de encontrar la carpeta de Onyx...\n\n\
+¿Podrías decírmela a continuación?: ")
+        # set -1 as flag for not found
+        indx = -1
+
+    if indx == -1:
+        onyxroot = backupname
+    else:
+        onyxroot = "/".join(folders[:indx + 1])
+
+    # return the folder without `~`
+    return onyxroot.replace("~", HOME)
+
+
+def colorfull(text: str, 
+        color: str, 
+        highlight:bool = False, 
+        available: bool = COLORFUL
+        ):
+    "Devuelve el text colorido en la terminal para drip extra"
+    # comprueba si está termcolor instalado
+    if available:
+        # comprueba si se ha especificado subrayado
+        if highlight:
+            return colored(text, color, attrs=["reverse", "blink"])
+        else:
+            return colored(text, color)
+    else:
+        return text
+
+
+def confirmArgs(uninotesroot, argpath) -> bool:
+    """
+    Comprueba que los argumentos han sido introducidos correctamente
+    Devuelve True si son aceptados
+    """
+    confirmation = input(f"\n[{colorfull('INFO', 'green')}]: ¿Es {colorfull(uninotesroot, 'magenta')}\
+ el directorio de Uni notes, y {colorfull(argpath, 'magenta')} lo que se deseea convertir? [y/N]  ")
+
+    #Comprobar la confirmación
+    if confirmation.rstrip().lower().replace(" ", "") != "y":
+        print(f"\n{colorfull('ALERTA', 'magenta', highlight=True)}: Especifica \
+el argumento de `path` en la terminal con '-p'. \nEscribe {colorfull('python3 UniNotesConvert.py -h', 'green')} \
+para más infomación")
+
+        return False
+
+    else:
+        return True
+
+
+def updateUniNotes(unidir: str) -> None:
+    "Comprueba que estemos usando la  ultima versión de uni notes"
+    os.system(f"cd {unidir} && git checkout main && git pull")
+    return
