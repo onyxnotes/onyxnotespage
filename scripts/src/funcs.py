@@ -18,7 +18,6 @@ if COLORFUL:
     from termcolor import colored
 
 
-
 def isFile(path: str) -> bool:
     return os.path.isfile(path)
 
@@ -52,11 +51,42 @@ def checkExtension(filepath, ext) -> bool:
     parsed is of the markdown extension
     """
     if ext != "md":
-        print(f"{colorfull('ALERTA', 'magenta', highlight=True)}:\
- El archivo {filepath} no es un archivo de markdown.\n\nIgnorandolo...\n")
+        printWarning(
+            f"El archivo {filepath} no es un archivo de markdown.\n\nIgnorandolo...")
+
         return False
     else:
         return True
+
+
+def printWarning(text: str) -> None:
+    """
+    Prints a warning message to the screen
+    """
+    print(
+        f'\n{colorfull("ALERTA", "magenta", highlight=True)}: {text}\n'
+    )
+    return
+
+
+def printError(text: str) -> None:
+    """
+    Prints an error message to the screen
+    """
+    print(
+        f'\n{colorfull("Error", "red", highlight=True)}: {text}\n'
+    )
+    return
+
+
+def printSuccess(text: str) -> None:
+    """
+    Prints a success message to the screen
+    """
+    print(
+        f'\n{colorfull("Éxito", "green", highlight=True)}: {text}\n'
+    )
+    return
 
 
 def getFileNameAndExt(filepath: Dir) -> Tuple["str", "str"]:
@@ -93,7 +123,7 @@ def getOnyxRootDir() -> str:
         indx += 1
 
     # Si no se ha encontrado ninguna carpeta
-    # que contenga el nombre de onyx, 
+    # que contenga el nombre de onyx,
     # introducir manualmente.
     else:
         backupname = input("No he sido capaz de encontrar la carpeta de Onyx...\n\n\
@@ -110,11 +140,11 @@ def getOnyxRootDir() -> str:
     return onyxroot.replace("~", HOME)
 
 
-def colorfull(text: str, 
-        color: str, 
-        highlight:bool = False, 
-        available: bool = COLORFUL
-        ):
+def colorfull(text: str,
+              color: str,
+              highlight: bool = False,
+              available: bool = COLORFUL
+              ):
     "Devuelve el text colorido en la terminal para drip extra"
     # comprueba si está termcolor instalado
     if available:
@@ -135,7 +165,7 @@ def confirmArgs(uninotesroot, argpath) -> bool:
     confirmation = input(f"\n[{colorfull('INFO', 'green')}]: ¿Es {colorfull(uninotesroot, 'magenta')}\
  el directorio de Uni notes, y {colorfull(argpath, 'magenta')} lo que se deseea convertir? [y/N]  ")
 
-    #Comprobar la confirmación
+    # Comprobar la confirmación
     if confirmation.rstrip().lower().replace(" ", "") != "y":
         print(f"\n{colorfull('ALERTA', 'magenta', highlight=True)}: Especifica \
 el argumento de `path` en la terminal con '-p'. \nEscribe {colorfull('python3 UniNotesConvert.py -h', 'green')} \

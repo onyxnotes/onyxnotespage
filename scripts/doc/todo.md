@@ -13,5 +13,5 @@ trabajar con admonitions y comentarios (a lo mejor comprobar al final).
 - [ ] Links
 - [ ] Self links (nuevo shortcode necesario)
 - [ ] Enlaces especificos (con ^)
-- [ ] Admonitions
+- [ ] Admonitions / Callouts
 - [ ] Retirar lineas de obsidian comentadas [%%comment%%]

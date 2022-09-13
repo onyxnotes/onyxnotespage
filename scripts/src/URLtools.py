@@ -9,7 +9,7 @@ Created on Mon Sep 12 12:39:19 PM CEST 2022
     Archivo para manejar URLs
 '''
 from src.GlobalVars import HOME
-from typing import Callable, List
+from typing import Callable, List, Union
 import functools
 
 
@@ -24,7 +24,7 @@ class Link:
     Clase para preprocesar links y asegurarse de
     que tienen el formato correcto
     """
-    def __init__(self, link:str|None) -> None:
+    def __init__(self, link: Union[str, None]) -> None:
         if link is not None:
             self.link = link.replace("\\", r"\\")
         else:
@@ -40,7 +40,7 @@ class Dir(Link):
     Clase para procesar directorios
     """
 
-    def __init__(self, link: str | None) -> None:
+    def __init__(self, link: Union[str, None]) -> None:
         super().__init__(link)
         # Eliminar el ~ por la carpeta home
         if self.link is not None:
