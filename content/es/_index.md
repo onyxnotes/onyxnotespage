@@ -1,5 +1,5 @@
 ---
-title: "Onyx Notes"
+title: "Onyx"
 description: "Todo lo que necesitas saber para tu carrera. Apuntes hechos por estudiantes, para estudiantes 🎓."
 lead: "Todo lo que necesitas saber para tu carrera. Apuntes hechos por estudiantes, para estudiantes 🎓."
 date: 2022-08-14T11:58:34+02:00
