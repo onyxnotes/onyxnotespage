@@ -24,7 +24,7 @@ from src.funcs import removeChars, printWarning, printError
 
 class OnyxImageConverter():
     """
-    Class that converts images into HUGO format
+    Clase que convierte imágenes a formato HUGO
 
     ALERTA:
         Esta clase toma el contenido en líneas, para
@@ -153,7 +153,7 @@ class OnyxImageConverter():
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     def parseLine(self, line: str, tochange: str) -> str:
-        " Method that parses a line "
+        " Method that parses a line in search for images "
         # check if the match must be centered
         cent_images = self.centeredImgPattern.findall(line)
         cent_image_match = [
@@ -175,7 +175,8 @@ class OnyxImageConverter():
             return self.parserUncenteredImages(line, tochange)
 
     def process(self) -> Union[List[str], np.ndarray]:
-        " Method that processes the lines of the file "
+        """ Method that processes all the lines of the file
+        and returns the processed contents"""
         # NOTE: maybe add tqdm
         # For each of the lines in the contents
         for nl, line in enumerate(self.contents):

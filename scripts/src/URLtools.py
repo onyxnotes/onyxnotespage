@@ -11,6 +11,7 @@ Created on Mon Sep 12 12:39:19 PM CEST 2022
 from src.GlobalVars import HOME
 from typing import Callable, List, Union
 import functools
+from src.GlobalVars import ONYXBASEURL, ONYXCONTENTPREFIX
 
 
 def compose(*functions: Callable) -> Callable:
@@ -48,11 +49,12 @@ class Dir(Link):
         return
 
     def split(self, char:str) -> List[str]:
+        """Wrapper for the split method"""
         return self.link.split(char)
 
 
 
-class URLname(Link):
+class HUGOuri(Link):
     """
     Clase que preprocesa una string para que tenga
     el formato apropiado en una string de URL de
@@ -69,8 +71,14 @@ class URLname(Link):
         con una function composition con la funcion
         compose()
         """
+        self.link = self.link.lower().replace(" ","-")
+
 
         # Una vez cumplido, borrar el resto de TODOs
+
+    def fromObsidian(self, link: str) -> str:
+        """Convierte """
+        raise NotImplementedError
 
 
 # Check if the module has problems
