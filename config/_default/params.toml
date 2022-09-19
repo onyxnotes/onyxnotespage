@@ -1,7 +1,7 @@
 # Meta Data for SEO
 
 ## Homepage
-title = "Onyx Notes"
+title = "Onyx"
 titleSeparator = "-"
 titleAddition = "Apuntes de calidad"
 # description = "Doks is a Hugo theme for building secure, fast, and SEO-ready documentation websites, which you can easily update and customize."
@@ -13,8 +13,8 @@ description = "En OnyxNotes encontrarás los mejores apuntes hechos a medida par
 ## Open Graph
 images = ["onyx.png"]
 ogLocale = "es_es"
-domainTLD = "onyxnotes.netlify.app"
-titleHome = "Onyx Notes"
+domainTLD = "onyxnotes.com"
+titleHome = "Onyx"
 
 ## Twitter Cards
 twitterSite = ""
@@ -23,8 +23,8 @@ twitterCreator = ""
 ## JSON-LD
 # schemaType = "Person"
 schemaType = "Organization"
-schemaName = "Onyx Notes"
-schemaAuthor = "Onyx Notes team"
+schemaName = "Onyx"
+schemaAuthor = "Onyx team"
 schemaAuthorTwitter = ""
 schemaAuthorLinkedIn = "https://www.linkedin.com/in/alvaro-viejo-alonso-871428243/"
 schemaAuthorGitHub = "https://github.com/onyxnotes"
@@ -41,7 +41,7 @@ schemaGitHub = "https://github.com/h-enk/doks"
 schemaSection = "blog"
 
 ## Sitelinks Search Box
-siteLinksSearchBox = false
+siteLinksSearchBox = true
 
 ## Chrome Browser
 themeColor = "#fff"

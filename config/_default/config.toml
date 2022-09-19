@@ -1,4 +1,4 @@
-baseurl = "https://onyxnotes.netlify.app/"
+baseurl = "https://onyxnotes.com/"
 canonifyURLs = false
 disableAliases = true
 disableHugoGeneratorInject = true
@@ -8,7 +8,7 @@ enableRobotsTXT = true
 paginate = 7
 rssLimit = 10
 
-#copyright= 'Copyright (&copy;) {{ now.Format "2006" }} Onyx Notes Team, onyxnotes.com Todos los derechos reservados'
+#copyright= 'Copyright (&copy;) {{ now.Format "2006" }} Onyx Team, onyxnotes.com Todos los derechos reservados'
 
 # Multilingual
 #### ATENCIÓN: Próximamente la lengua predeterminada será el castellano
