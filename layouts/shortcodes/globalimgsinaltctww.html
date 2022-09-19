@@ -1,0 +1,13 @@
+<!--
+	Centra y excala una imagen
+
+	-	imgpath: path a la imagen GLOBAL
+	-	res: resolución de la imagen
+
+	RECORDAR PONER TODOS LOS ARGUMENTOS ENTRE COMILLAS
+-->
+{{ $imgpath := .Get "imgpath"}}
+{{ $image := resources.Get $imgpath}}
+{{ with $image }}
+	<img src="{{ .RelPermalink }}" style="display:block; margin-left:auto; margin-right:auto;">
+{{ end }}
