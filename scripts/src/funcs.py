@@ -9,8 +9,8 @@ Created on Mon Sep 12 12:48:04 PM CEST 2022
     Archivo que tendrá las helper functions para OnyxConvert.py
 '''
 import os
-from typing import Callable, Tuple
-from src.GlobalVars import HOME, COLORFUL
+from typing import Callable, List, Tuple
+from src.GlobalVars import HOME, COLORFUL, ONYXIMAGEFOLDER, ONYXCONTENTPREFIX
 import functools
 from src.URLtools import Dir
 
@@ -108,7 +108,35 @@ def compose(*functions: Callable) -> Callable:
     return functools.reduce(lambda f, g: lambda x: f(g(x)), functions)
 
 
-def getOnyxRootDir() -> str:
+def moveImages(onyxrootdir: Dir, uni_notes_folder: Dir, imgQueue: List[str]) -> None:
+    """Función que meterá todas las imagenes procesadas dentro de la 
+    carpeta de Onyx"""
+    for img in imgQueue:
+        os.system(f'cp "{uni_notes_folder}/Pasted images/{img}" {onyxrootdir}/assets/images/PastedImages/')
+
+
+def moveFile(onyxrootdir: Dir, uni_notes_folder: Dir, filepath: Dir, contents: str) -> None:
+    """Funcion que mete el archivo dentro de la carpeta de Onyx"""
+    filecmd = filepath.link.replace(uni_notes_folder.link, "")
+    if filecmd[0] == "/":
+        filecmd = filecmd[1:]
+
+    hugofile = filecmd.replace(" ", r"\ ")
+    cmd = f'cd {onyxrootdir} && hugo new {hugofile}'
+    input(cmd)
+    os.system(cmd)
+
+    with open(f'{onyxrootdir}/{ONYXCONTENTPREFIX}/{filecmd}', "a") as file:
+        file.write(contents)
+
+    return
+
+
+
+    
+
+
+def getOnyxRootDir() -> Dir:
     """
     Devuelve la raiz de la carpeta de onyx
     del sistema
@@ -137,7 +165,7 @@ def getOnyxRootDir() -> str:
         onyxroot = "/".join(folders[:indx + 1])
 
     # return the folder without `~`
-    return onyxroot.replace("~", HOME)
+    return Dir(onyxroot)
 
 
 def colorfull(text: str,

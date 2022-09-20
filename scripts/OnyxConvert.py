@@ -41,17 +41,13 @@ Funcionamiento:
 ####################################
 # LIBRERÍAS
 ####################################
-import os
 import sys
-import re
-import subprocess
 from tqdm import tqdm
+import numpy as np
 from typing import List, Union
+from src.LinkConverter import OnyxLinkConverter
 from src.Patterns import *  # import all patterns
-from src.GlobalVars import ONYXBASEURL, ONYXCONTENTPREFIX, \
-    ONYXIMAGEFOLDER, CHARSTOREMOVEIMG
 from src.ArgParser import getArguments
-from src.URLtools import Link, URLname
 from src.funcs import *
 from src.ImageConverter import OnyxImageConverter
 
@@ -77,251 +73,8 @@ def addImgToQueue(imgname: str, imagequeue=imagequeue) -> None:
     return
 
 
-def convertLinks(line: str, nl: int, contents: List[str], filepath: str,
-                 uninotesdir: str, linksearch=LINKSEARCH) -> str:
-    """
-    Método que dado una línea de un archivo, convertirá los links 
-    a formato HUGO
-    """
-    # search links using the Regex pattern
-    # after having found the images
-    linkmch = linksearch.findall(line)
-    if len(linkmch):
-        print(f"link found in line {nl + 1}!:")
-        print(linkmch, "\n")
-        # NOTE: Es importante especificar la root
-        # de uninotes en convertLineLink para encontrar las carpetas
-        # intermedias de los archivos para poner bien
-        # las imagenes en la pagina web
-        contents[nl] = _convertLinks(line,
-                                     selffilename=filename,
-                                     uninotesdir=uninotesdir
-                                     )
-        line = contents[nl]
-        return line
-    else:
-        return line
 
-
-def _convertLinks(line: str,
-                  # Para por si tenemos un link que sea una
-                  # referencia a un heading de si mismo
-                  selffilename: str,
-                  uninotesdir: str,
-                  # Para encontrar imagenes en general
-                  linksearch: re.Pattern = LINKSEARCH,
-                  charstoremove: List[str] = CHARSTOREMOVEIMG,
-                  url: str = ONYXBASEURL,
-                  contentprefix: str = ONYXCONTENTPREFIX
-                  ) -> str:
-    """
-    Funcion que, especificada una linea,
-    devolvera la linea con links en formato
-    markdown con los endpoints para Onyx
-    """
-
-    def getUniNotesInnerFolders(filename: str) -> Union[str, None]:
-        """Función que obtiene el path de las carpetas intermedias desde
-        la root de uninotes de un archivo especificando su nombre"""
-
-        # Escape space characters
-        uninotesdirshell = uninotesdir.replace(" ", "\\ ")
-        try:
-            output = subprocess.check_output(
-                f'cd {uninotesdirshell} && fd | grep "{filename}"',
-                shell=True).decode()
-
-            if output == "":
-                print(
-                    f"WARNING, the innerfolders of {filename} could not be found")
-                innerfolders = None
-
-            else:
-                outputsplit = output[2:].split("/")
-                innerfolders = "/".join(outputsplit[:-1])
-
-        # In case the subprocess fails
-        except subprocess.CalledProcessError as err:
-            print(err)
-            innerfolders = None
-
-        return innerfolders
-
-    # Get all the matches in the line
-    mchs = linksearch.findall(line)
-
-    # Go through all the matches
-    for tochange in mchs:
-        # If the link is not of the type `!`
-        if "^" in tochange:
-            if "|" in tochange:
-                linkclean = removeChars(tochange, charstoremove)
-                linksplit = [part.strip() for part in linkclean.split("|")]
-                changeby = f'**{linksplit[1]}**'
-            else:
-                changeby = f'LINK ROTO: {tochange}'
-            line = line.replace(tochange, changeby)
-
-        else:
-            if "!" not in tochange:
-                linkclean = removeChars(tochange, charstoremove)
-
-                # Check if the link has |
-                if "|" in tochange:
-                    linksplit = [part.strip() for part in linkclean.split("|")]
-                    linkpath = linksplit[0]
-                    linktext = linksplit[1]
-
-                    #Check if the link has #
-                    if "#" in tochange:
-                        linkpathsplit = [part.strip()
-                                         for part in linkpath.split("#")]
-                        # TODO: Comprobar la transformacion de los nombres de los archivos a links
-                        filename = linkpathsplit[0]
-
-                        # If we have a self link
-                        if len(filename) == 0:
-                            filename = selffilename
-
-                        # Get the inner folders
-                        innerfolders = getUniNotesInnerFolders(filename)
-                        if innerfolders is None:
-                            print("WARNING, no innerfolders found!")
-                            innerfolders = ""
-
-                        # TODO: Comprobar la transformacion de los nombres de las carpetas a links
-                        innerfolderslink = innerfolders.lower().replace(" ", "-")
-
-                        # TODO: Comprobar la transformacion de " " a "-"
-                        linkname = filename.lower().replace(" ", "-")
-                        # Change the name of the pointer that is being pointed to
-                        # to use HUGO's syntax
-                        # ie: https://onyxnotes.netlify.app/en/docs/prologue/test/#heading-1
-                        linkheaderpointer = linkpathsplit[1].lower().replace(
-                            " ", "-")
-                        changeby = f'[{linktext}]({url}/{contentprefix}/{innerfolderslink}/{linkname}/#{linkheaderpointer})'
-
-                    else:
-                        filename = linkpath
-
-                        # Get the inner folders
-                        innerfolders = getUniNotesInnerFolders(filename)
-                        if innerfolders is None:
-                            print("WARNING, no innerfolders found!")
-                            innerfolders = ""
-
-                        # TODO: Comprobar la transformacion de los nombres de las carpetas a links
-                        innerfolderslink = innerfolders.lower().replace(" ", "-")
-
-                        # TODO: Comprobar la transformacion de " " a "-"
-                        linkname = linkpath.lower().replace(" ", "-")
-                        changeby = f'[{linktext}]({url}/{contentprefix}/{innerfolderslink}/{linkname})'
-
-                # No custom text to display
-                else:
-                    linkpath = linkclean
-                    linktext = linkpath.strip()
-                    # TODO: Comprobar la transformacion de los nombres de los archivos a links
-
-                    #Check if the link has #
-                    if "#" in tochange:
-                        linkpathsplit = [part.strip()
-                                         for part in linkpath.split("#")]
-                        # TODO: Comprobar la transformacion de los nombres de los archivos a links
-                        filename = linkpathsplit[0]
-
-                        # If we have a self link
-                        if len(filename) == 0:
-                            filename = selffilename
-
-                        # Get the inner folders
-                        innerfolders = getUniNotesInnerFolders(filename)
-                        if innerfolders is None:
-                            print("WARNING, no innerfolders found!")
-                            innerfolders = ""
-
-                        # TODO: Comprobar la transformacion de los nombres de las carpetas a links
-                        innerfolderslink = innerfolders.lower().replace(" ", "-")
-                        # TODO: Comprobar la transformacion de " " a "-"
-                        linkname = filename.lower().replace(" ", "-")
-                        # Change the name of the pointer that is being pointed to
-                        # to use HUGO's syntax
-                        # ie: https://onyxnotes.netlify.app/en/docs/prologue/test/#heading-1
-                        linkheaderpointer = linkpathsplit[1].lower().replace(
-                            " ", "-")
-                        changeby = f'[{linktext}]({url}/{contentprefix}/{innerfolderslink}/{linkname}/#{linkheaderpointer})'
-
-                    else:
-                        # Get the inner folders
-                        filename = linkpath.strip()
-                        innerfolders = getUniNotesInnerFolders(filename)
-                        if innerfolders is None:
-                            print("WARNING, no innerfolders found!")
-                            innerfolders = ""
-
-                        # TODO: Comprobar la transformacion de los nombres de las carpetas a links
-                        innerfolderslink = innerfolders.lower().replace(" ", "-")
-                        linkname = linkpath.lower().replace(" ", "-")
-                        changeby = f'[{linktext}]({url}/{contentprefix}/{innerfolderslink}/{linkname})'
-
-                # Change the line
-                line = line.replace(tochange, changeby)
-
-            # If it does have !
-            else:
-                linkclean = removeChars(tochange, charstoremove)
-                linkpath = linkclean
-                linktext = linkpath.strip()
-                # TODO: Comprobar la transformacion de los nombres de los archivos a links
-
-                #Check if the link has #
-                if "#" in tochange:
-                    linkpathsplit = [part.strip()
-                                     for part in linkpath.split("#")]
-                    # TODO: Comprobar la transformacion de los nombres de los archivos a links
-                    filename = linkpathsplit[0]
-
-                    # If we have a self link
-                    if len(filename) == 0:
-                        filename = selffilename
-
-                    # Get the inner folders
-                    innerfolders = getUniNotesInnerFolders(filename)
-                    if innerfolders is None:
-                        print("WARNING, no innerfolders found!")
-                        innerfolders = ""
-
-                    # TODO: Comprobar la transformacion de los nombres de las carpetas a links
-                    innerfolderslink = innerfolders.lower().replace(" ", "-")
-                    # TODO: Comprobar la transformacion de " " a "-"
-                    linkname = filename.lower().replace(" ", "-")
-                    # Change the name of the pointer that is being pointed to
-                    # to use HUGO's syntax
-                    # ie: https://onyxnotes.netlify.app/en/docs/prologue/test/#heading-1
-                    linkheaderpointer = linkpathsplit[1].lower().replace(
-                        " ", "-")
-                    changeby = f'[{linktext}]({url}/{contentprefix}/{innerfolderslink}/{linkname}/#{linkheaderpointer})'
-
-                else:
-                    # Get the inner folders
-                    filename = linkpath.strip()
-                    innerfolders = getUniNotesInnerFolders(filename)
-                    if innerfolders is None:
-                        print("WARNING, no innerfolders found!")
-                        innerfolders = ""
-
-                    # TODO: Comprobar la transformacion de los nombres de las carpetas a links
-                    innerfolderslink = innerfolders.lower().replace(" ", "-")
-                    linkname = linkpath.lower().replace(" ", "-")
-                    changeby = f'[{linktext}]({url}/{contentprefix}/{innerfolderslink}/{linkname})'
-
-                # Change the line
-                line = line.replace(tochange, changeby)
-
-    return line
-
-
-def processFile(filepath: Dir, uninotesdir: str) -> Union[List[str], None]:
+def processFile(filepath: Dir, uninotesdir: Dir) -> str:
     """
     Funcion que dado un archivo, lo procesara y lo devuelve en formato de HUGO
     """
@@ -346,15 +99,16 @@ def processFile(filepath: Dir, uninotesdir: str) -> Union[List[str], None]:
                 addImgToQueue(image)
 
     # 4. Buscar y convertir links
-                # line = convertLinks(line,
-                #         nl,
-                #         contents,
-                #         filename,
-                #         filepath,
-                #         uninotesdir
-                #         )
+            LinkConverter = OnyxLinkConverter(
+                contents_formated_images,
+                uninotesdir,
+                filepath,
+                verbose=True
+            )
+            contents_formated_images_links = LinkConverter.process()
 
-        # convertedDoc = contents
+
+        convertedDoc = "\n".join(contents_formated_images_links)
 
     # # If the extension of the file was not markdown, return None
     else:
@@ -363,19 +117,25 @@ def processFile(filepath: Dir, uninotesdir: str) -> Union[List[str], None]:
             "Skipping..."
         ]))
         # contents_formated_images = ["Nope"]
-        # convertedDoc = None
+        convertedDoc = ""
 
     return convertedDoc
 
 
-def onyxConvert(target, unidir) -> bool:
+def onyxConvert(target:Dir, unidir: Dir) -> bool:
     """
     Funcion que discierne entre archivos
     carpetas y los convierte.
     """
-    raise NotImplementedError()
-    # processFile(target, unidir)
-    # return True
+    # raise NotImplementedError()
+    onyx_folder = getOnyxRootDir()
+    
+    moveFile(onyx_folder, unidir, target, processFile(target, unidir))
+    moveImages(onyx_folder, unidir, imagequeue)
+
+
+
+    return True
 
     # 1. Manejar los errores
     # 2. Distinguir entre archivo/carpeta

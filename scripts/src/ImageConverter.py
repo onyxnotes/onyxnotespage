@@ -72,7 +72,7 @@ class OnyxImageConverter():
             shortcode = "globalimgsinalt"
 
         # Create the final image format
-        changeby = f'{{< {shortcode}  imgpath="{self.imgFolder}/{imgname}" res="{imgdata[1]}x" >}}'
+        changeby = '{{< '+ shortcode + ' imgpath="' + self.imgFolder + '/' + imgname + '" res="' + imgdata[1] + 'x" >}}'
         # Add the image name to the queue
         self.addImgToQueue(imgname)
         # Substitute the old format by the new
@@ -93,7 +93,7 @@ class OnyxImageConverter():
         else:
             shortcode = "globalimgsinaltww"
         # Create the final image format
-        changeby = f'{{< {shortcode} imgpath="{self.imgFolder}/{imgname}" >}}'
+        changeby = '{{< '+ shortcode + ' imgpath="' + self.imgFolder + '/' + imgname +'" >}}'
         # Add the image name to the queue
         self.addImgToQueue(imgname)
         # Substitute the old format by the new

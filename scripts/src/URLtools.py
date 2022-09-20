@@ -63,9 +63,6 @@ class HUGOuri(Link):
 
     def __init__(self, link: str) -> None:
         super().__init__(link)
-        #TODO: Comprobar la transformacion de los nombres de los archivos a links
-        #TODO: Comprobar la transformacion de los nombres de las carpetas a links
-        #TODO: Comprobar la transformacion de " " a "-"
         """
         Llevar a cabo todas las transformaciones
         con una function composition con la funcion
@@ -74,11 +71,6 @@ class HUGOuri(Link):
         self.link = self.link.lower().replace(" ","-")
 
 
-        # Una vez cumplido, borrar el resto de TODOs
-
-    def fromObsidian(self, link: str) -> str:
-        """Convierte """
-        raise NotImplementedError
 
 
 # Check if the module has problems

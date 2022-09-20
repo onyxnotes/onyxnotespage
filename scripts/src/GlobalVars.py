@@ -38,7 +38,7 @@ To install it, stop the script with CTRL-C and type:
 # Onyx website variables
 #~~~~~~~~~~~~~~~~~~~~~~~~~~
 ONYXBASEURL = "https://onyxnotes.com"
-ONYXCONTENTPREFIX = "content/en" # sin / al final para ser consistentes
+ONYXCONTENTPREFIX = "content/es" # sin / al final para ser consistentes
 # Carpeta de onyxnotes donde irán las imágenes
 ONYXIMAGEFOLDER = "images/PastedImages"
 
